@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookRank</title>
+</head>
+<body>
+    <nav>
+        <ul class="flex flex-column justify-center items-center gap-8 bg-stone-700 py-4 text-white">
+            <li><a href="/">Home</a></li>
+            <li><a href="/Explore">Explore</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock content %}
+    </main>
+</body>
+</html>
