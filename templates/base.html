@@ -8,15 +8,9 @@
     <title>BookRank</title>
 </head>
 <body>
-    <nav>
-        <p class="text-xl">Lorem ipsum</p>
-        <ul class="flex flex-column justify-center items-center gap-8 bg-stone-700 py-4 text-white ">
-            <li><a href="/">Home</a></li>
-            <li><a href="/Explore">Explore</a></li>
-        </ul>
-    </nav>
-
-    <main>
+    {% include 'navbar.html' %}
+    
+    <main class="container">
         {% block content %}
         {% endblock content %}
     </main>
