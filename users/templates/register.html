@@ -4,23 +4,35 @@
 <div class="container w-full h-[85vh] flex justify-center items-center">
     <div class="w-full flex flex-col justify-center items-center">
         <h2 class="mb-6 text-xl md:text-2xl">Register in BookRank</h2>
-        <form class="w-[80%] sm:w-[350px] flex flex-col justify-center items-center gap-3 sm:gap-4" action="">
+        <form method='POST' class="w-[80%] sm:w-[350px] flex flex-col justify-center items-center gap-3 sm:gap-4">
+            {% csrf_token %}
 
             <div class="w-full flex flex-col justify-center gap-1">
-                <label class="w-full" for="username">Username</label>
-                <input class="w-full border px-2 py-1" type="text" id="username" name="username">
+                <label for="{{ form.username.id }}" class="w-full">Username</label>
+                <!-- <input class="w-full border px-2 py-1" type="text" id="username" name="username"> -->
+                 {{ form.username }}
+                 {{ form.username.errors }}
             </div>
 
             <div class="w-full flex flex-col justify-center gap-1">
-                <label class="w-full" for="password">Password</label>
-                <input class="w-full border px-2 py-1 " type="password" id="password" name="password">
+                <label for="form.password1.id" class="w-full" >Password</label>
+                <!-- <input class="w-full border px-2 py-1 " type="password" id="password1" name="password1"> -->
+                 {{ form.password1 }}
+                 {{ form.password1.errors }}
+            </div>
+
+            <div class="w-full flex flex-col justify-center gap-1">
+                <label for="{{ form.password2.id }}" class="w-full" >Repeat password</label>
+                <!-- <input class="w-full border px-2 py-1 " type="password" id="password2" name="password2"> -->
+                 {{ form.password2 }}
+                 {{ form.password2.errors }}
             </div>
 
             <input class="border w-full mt-4 py-1 bg-[#2e4052] text-white" type="submit" value="Register">
 
             <div class="w-full flex items-center justify-evenly">
                 <p>Already registered?</p>
-                <p>Sign-in</p>
+                <a href="{% url 'login' %}">Sign-in</a>
             </div>
         </form>
     </div>
