@@ -10,7 +10,14 @@ def register_site(request):
         form = RegisterForm(request.POST)
 
         if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+
             form.save()
+            
+            user = authenticate(request, username=username, password=password)
+            login(request, user)
+
             return redirect('home')
     else:
         form = RegisterForm()
