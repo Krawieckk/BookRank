@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import RegisterForm, LoginForm
 from django.contrib.auth import authenticate, login, logout
+from .models import Profile
 
 # Create your views here.
 def register_site(request):
@@ -16,6 +17,9 @@ def register_site(request):
             form.save()
             
             user = authenticate(request, username=username, password=password)
+
+            Profile.objects.create(user=user)
+            
             login(request, user)
 
             return redirect('home')
