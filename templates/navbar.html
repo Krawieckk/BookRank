@@ -1,5 +1,5 @@
-<nav class="bg-[#2e4052] py-2 text-white">
-  <div class="container mx-auto px-4 flex items-center justify-between">
+<nav class="bg-[#2e4052] text-white">
+  <div class="container mx-auto px-4 py-4 flex items-center justify-between">
     <a href="{% url 'home' %}" class="text-lg font-semibold">BookRank</a>
 
     <button id="menu-toggle"
@@ -17,26 +17,28 @@
         <li><a href="/" class="hover:opacity-75">Explore</a></li>
 
         {% if user.is_authenticated %}
-        <!-- <li><a href="{% url 'logout' %}" class="mt-3 px-3 py-2 text-black bg-blue-100 rounded">Logout</a></li>\ -->
-         <img class="rounded-full w-10 h-10 border border-black border-1" src="{{ user.profile.profile_picture.url }}" alt="avatar">
+         <img class="rounded-full w-9 h-9 border border-black border-1" src="{{ user.profile.profile_picture.url }}" alt="avatar">
         {% else %}
-        <li><a href="{% url 'register' %}" class="mt-3 px-3 py-2 text-black bg-blue-100 rounded">Sign in / Sign up</a></li>
+        <li><a href="{% url 'register' %}" class="mt-3 px-3 py-2 hover:opacity-75">Sign in / Sign up</a></li>
         {% endif %}
       </ul>
     </div>
   </div>
 
-  <div id="mobile-menu" class="sm:hidden hidden border-t border-white/10 mt-3">
+  <div id="mobile-menu" class="sm:hidden hidden border-t border-white/10">
     <div class="container mx-auto px-4 pb-3 flex flex-col items-center">
-      <ul class="flex flex-col gap-2 pt-2 items-center">
-        <li><a href="/" class="block py-1">Top rated</a></li>
-        <li><a href="/" class="block py-1">Best authors</a></li>
-        <li><a href="/" class="block py-1">Explore</a></li>
+      <ul class="flex flex-col w-full gap-3 pt-2 text-left items-center">
+        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2"><a class="block w-full h-full" href="/">Top rated</a></li>
+        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2"><a class="block w-full h-full" href="/">Best authors</a></li>
+        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2"><a class="block w-full h-full" href="/">Explore</a></li>
 
         {% if user.is_authenticated %}
-        <li><a href="{% url 'logout' %}" class="mt-3 px-3 py-2 text-black bg-blue-100 rounded">Logout</a></li>
+        
+        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2">Profile</li>
+        <li class="w-full text-center py-2"><a href="{% url 'logout' %}" class="text-red-400">Logout</a></li>
+        
         {% else %}
-        <li><a href="{% url 'register' %}" class="mt-3 px-3 py-2 text-black bg-blue-100 rounded">Sign in / Sign up</a></li>
+        <li><a class="block px-3 py-2" href="{% url 'register' %}">Sign in / Sign up</a></li>
         {% endif %}
       </ul>
       
