@@ -1,5 +1,5 @@
 <nav class="bg-[#2e4052] text-white">
-  <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+  <div class="container mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
     <a href="{% url 'home' %}" class="text-lg font-semibold">BookRank</a>
 
     <button id="menu-toggle"
@@ -28,13 +28,13 @@
   <div id="mobile-menu" class="sm:hidden hidden border-t border-white/10">
     <div class="container mx-auto px-4 pb-3 flex flex-col items-center">
       <ul class="flex flex-col w-full gap-3 pt-2 text-left items-center">
-        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2"><a class="block w-full h-full" href="/">Top rated</a></li>
-        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2"><a class="block w-full h-full" href="/">Best authors</a></li>
-        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2"><a class="block w-full h-full" href="/">Explore</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="/">Top rated</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="/">Best authors</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="/">Explore</a></li>
 
         {% if user.is_authenticated %}
         
-        <li class="w-full border-b-2 border-[#233445] pt-1 pb-2">Profile</li>
+        <li class="w-full pt-1 pb-2">Profile</li>
         <li class="w-full text-center py-2"><a href="{% url 'logout' %}" class="text-red-400">Logout</a></li>
         
         {% else %}

@@ -6,6 +6,8 @@ from .models import Profile
 # Create your views here.
 def register_site(request):
     # Todo: If a user is authenticated, refuse to access register and login site
+    if request.user.is_authenticated:
+        return redirect('home')
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -30,6 +32,9 @@ def register_site(request):
 
 
 def login_site(request):
+
+    if request.user.is_authenticated:
+        return redirect('home')
     error_message = None
 
     if request.method == 'POST':
