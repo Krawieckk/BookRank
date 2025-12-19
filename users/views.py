@@ -5,7 +5,6 @@ from .models import Profile
 
 # Create your views here.
 def register_site(request):
-    # Todo: If a user is authenticated, refuse to access register and login site
     if request.user.is_authenticated:
         return redirect('home')
 
