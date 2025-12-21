@@ -25,6 +25,8 @@ class Book(models.Model):
     publication_year = models.IntegerField(blank=True, null=True)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     cover_image = models.CharField(max_length=255, blank=True, null=True)
+    publisher = models.CharField(max_length=200, blank=True, null=True)
+    info_link = models.CharField(max_length=300, blank=True, null=True)
     summary_generated = models.BooleanField(default=False)
     allow_summary = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
