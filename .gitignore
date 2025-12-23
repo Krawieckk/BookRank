@@ -62,3 +62,6 @@ node_modules/
 
 # SQLite database
 db.sqlite3
+
+# csv file with data to import
+data/
