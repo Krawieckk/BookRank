@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
     <link rel="stylesheet" href="{% static 'dist/styles.css' %}?v={% now "U" %}">
     <title>BookRank</title>
 </head>
 <body>
     {% include 'navbar.html' %}
     <main class="w-full flex flex items-center justify-center">
-        {% block content %}
-        {% endblock content %}
+        {% block content %}{% endblock %}
+
+        {% block scripts %}{% endblock %}
     </main>
 </body>
 </html>
