@@ -1,7 +1,101 @@
-{% extends 'base.html' %}
+{% extends "base_with_navbar.html" %}
 
 {% block content %}
+<section class="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
+  <div class="flex flex-col items-center gap-8 md:flex-row md:items-center">
+    <div class="shrink-0">
+      <div class="w-28 sm:w-32 md:w-36">
+        {% if book.cover_image %}
+          <img
+            src="{{ book.cover_image }}"
+            alt="Cover image: {{ book.title }}"
+            class="w-full aspect-[2/3] w-44 rounded-sm object-cover shadow"
+            loading="lazy"
+          />
+        {% else %}
+          <div class="w-full aspect-[2/3] rounded-sm bg-gray-200 shadow flex items-center justify-center text-xs text-gray-500">
+            No cover image
+          </div>
+        {% endif %}
+      </div>
+    </div>
 
-<p>{{book.title}}</p>
-<p>{{book.description}}</p>
-{% endblock content %}
+    <div class="w-full text-center md:text-left">
+      <h1 class="text-xl sm:text-2xl font-semibold text-gray-900 block max-w-[600px]">
+        {{ book.title }}
+      </h1>
+
+      <dl class="mt-6 space-y-2 text-sm text-gray-800">
+        <div class="flex flex-col gap-1 md:flex-row md:gap-3">
+          <dt class="font-medium text-gray-900">Author:</dt>
+          <dd class="text-gray-700">
+            {% if book.authors.all %}
+                {% for author in book.authors.all %}
+                    {{ author }}
+                {% endfor %}
+            {% else %}
+                Unknown
+            {% endif %}
+          </dd>
+        </div>
+
+        <div class="flex flex-col gap-1 md:flex-row md:gap-3">
+          <dt class="font-medium text-gray-900">Tags:</dt>
+          <dd class="text-gray-700">
+            {% if book.tags.all %}
+              <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                {% for tag in book.tags.all %}
+                  <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-800">
+                    {{ tag.name }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <span class="text-gray-500">—</span>
+            {% endif %}
+          </dd>
+        </div>
+
+        <div class="flex flex-col gap-1 md:flex-row md:gap-3">
+          <dt class="font-medium text-gray-900">Publisher:</dt>
+          <dd class="text-gray-700">
+            {{ book.publisher }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="mt-12 md:mt-16">
+    <h2 class="text-lg font-medium text-gray-700">
+      Description
+    </h2>
+
+    <div class="mt-4 text-sm sm:text-base leading-relaxed text-gray-800">
+      {% if book.description %}
+        <p class="whitespace-pre-line">
+          {{ book.description }}
+        </p>
+      {% else %}
+        <p class="text-gray-500">Brak opisu.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="mt-12 md:mt-16">
+    <h2 class="text-lg font-medium text-gray-700">
+      User reviews
+    </h2>
+
+    <div class="mt-4 text-sm sm:text-base leading-relaxed text-gray-800">
+      {% if book.description %}
+        <p class="whitespace-pre-line">
+          {{ book.description }}
+        </p>
+      {% else %}
+        <p class="text-gray-500">Brak opisu.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
