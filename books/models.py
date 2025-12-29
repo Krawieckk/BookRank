@@ -54,14 +54,14 @@ class Review(models.Model):
         return f'{self.user} [{self.rating}] -> {self.book}'
 
 class ReviewSummary(models.Model):
-    summary_text = models.TextField(max_length=400)
+    summary_text = models.CharField(max_length=400)
     inserted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+    reviews_added_count = models.PositiveIntegerField(default=0)
+    last_summarized_count = models.PositiveIntegerField(default=0)
+    is_generating = models.BooleanField(default=False)
 
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('book',)
+    book = models.OneToOneField(Book, on_delete=models.CASCADE, related_name="review_summary")
 
     def __str__(self):
         return f'{self.book} summary'
