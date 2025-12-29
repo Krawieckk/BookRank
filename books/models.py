@@ -46,6 +46,7 @@ class Review(models.Model):
     inserted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    helpful_count = models.PositiveIntegerField(default=0, db_index=True)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
@@ -66,14 +67,20 @@ class ReviewSummary(models.Model):
     def __str__(self):
         return f'{self.book} summary'
 
-class ReviewUpVote(models.Model):
-    up_vote_time_added = models.DateTimeField(auto_now_add=True)
+class ReviewHelpfulness(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('user', 'review')
+        constraints = [
+            models.UniqueConstraint(fields=["user", "review"], name="uniq_user_review_helpful")
+        ]
+        indexes = [
+            models.Index(fields=['review']), 
+            models.Index(fields=['user'])
+        ]
 
     def __str__(self):
         return f'{self.user} -> {self.review}'
