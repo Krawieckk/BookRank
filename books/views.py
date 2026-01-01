@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
 from .models import Book, Review
+from .forms import ReviewForm
+from django.shortcuts import redirect, render
 
 # Create your views here.
 def home(request):
@@ -14,20 +16,28 @@ def book_page(request, pk):
 
     book = get_object_or_404(Book, id=pk)
 
+    if request.method == 'POST':
+        review_form = ReviewForm(request.POST)
+        if review_form.is_valid():
+            review = review_form.save(commit=False)
+            review.book = book
+            review.user = request.user
+            review.save()
+            return redirect('book_page', pk=book.pk)
+    else:
+        review_form = ReviewForm()
+
     if authenticated:
         current_user_review = Review.objects.filter(book=book, user=request.user).first()
+    else:
+        current_user_review = None
 
-    if current_user_review:
+    if current_user_review is not None:
         reviews = Review.objects.filter(book=book).exclude(id=current_user_review.id)
     else:
         reviews = Review.objects.filter(book=book)
 
-    if current_user_review: 
-        print('Has review')
-    else:
-        print('no review')
-
-    context = {'book': book, 'reviews': reviews, 'current_user_review': current_user_review}
+    context = {'book': book, 'reviews': reviews, 'current_user_review': current_user_review, 'review_form': review_form}
 
     return render(request, 'book_page.html', context)
 

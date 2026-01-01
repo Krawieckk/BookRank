@@ -40,8 +40,17 @@ class Book(models.Model):
         return self.title
     
 class Review(models.Model):
-    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    review_text = models.TextField(max_length=300, blank=True, null=True)
+
+    rating_choices = [
+        (1, "1"),
+        (2, "2"),
+        (3, "3"),
+        (4, "4"),
+        (5, "5")
+    ]
+
+    rating = models.PositiveSmallIntegerField(choices=rating_choices)
+    review_text = models.TextField(blank=True, null=True)
     only_rating = models.BooleanField(default=False)
     inserted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
