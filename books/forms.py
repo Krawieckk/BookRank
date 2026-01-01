@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Review
+from .models import Review, ReviewHelpfulness
 from django import forms
 
 class ReviewForm(ModelForm):
@@ -22,3 +22,8 @@ class ReviewForm(ModelForm):
                 "placeholder": "Text",
             }),
         }
+
+class HelpfulReviewForm(ModelForm):
+    class Meta:
+        model = ReviewHelpfulness
+        fields = []
