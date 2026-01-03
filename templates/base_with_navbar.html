@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static 'dist/styles.css' %}?v={% now "U" %}">
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
     <title>BookRank</title>
 </head>
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% include 'navbar.html' %}
     <main class="w-full flex flex items-center justify-center">
         <div class="w-full container sm:px-4 py-8 sm:py-12">
