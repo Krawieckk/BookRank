@@ -63,7 +63,7 @@ class Review(models.Model):
         return f'{self.user} [{self.rating}] -> {self.book}'
 
 class ReviewSummary(models.Model):
-    summary_text = models.CharField(max_length=400, blank=True, null=True)
+    summary_text = models.TextField(blank=True, null=True)
     inserted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     reviews_added_count = models.PositiveIntegerField(default=0)
