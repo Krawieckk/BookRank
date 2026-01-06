@@ -1,6 +1,4 @@
 from django.db import models
-import uuid
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -24,6 +22,7 @@ class Book(models.Model):
     description = models.TextField(blank=True, null=True)
     publication_year = models.IntegerField(blank=True, null=True)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
+    reviews_count = models.IntegerField(default=0)
     cover_image = models.CharField(max_length=255, blank=True, null=True)
     publisher = models.CharField(max_length=200, blank=True, null=True)
     info_link = models.CharField(max_length=300, blank=True, null=True)
@@ -64,7 +63,7 @@ class Review(models.Model):
         return f'{self.user} [{self.rating}] -> {self.book}'
 
 class ReviewSummary(models.Model):
-    summary_text = models.CharField(max_length=400)
+    summary_text = models.CharField(max_length=400, blank=True, null=True)
     inserted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     reviews_added_count = models.PositiveIntegerField(default=0)

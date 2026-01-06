@@ -70,14 +70,14 @@
 
   </div>
 
-  <div class="mt-12 md:mt-16">
+  <div class="mt-12 md:mt-10">
     <h2 class="text-lg font-medium text-gray-700">
       Description
     </h2>
 
-    <div class="mt-4 text-sm sm:text-base leading-relaxed text-gray-800">
+    <div class="mt-4 text-sm sm:text-base text-gray-800">
       {% if book.description %}
-        <p class="whitespace-pre-line">
+        <p class="">
           {{ book.description }}
         </p>
       {% else %}
@@ -86,14 +86,14 @@
     </div>
   </div>
 
-    <div class="mt-12 md:mt-16">
+    <div class="mt-12 md:mt-10">
     <div class="flex flex-col gap-2">
       <h2 class="text-lg font-medium text-gray-700">
         User reviews
       </h2>
 
       <p class="text-sm text-gray-700">
-        Average rating: {{ book.average_rating }} out of 5
+        Average rating: {{ book.average_rating }} out of 5  (based on {{ book.reviews_count }} reviews)
       </p>
     </div>
 
@@ -111,6 +111,18 @@
     {% endif %}
 
     {% if reviews %}
+
+    <div class="mt-8 md:mt-10">
+        <h2 class="text-lg font-medium text-gray-700">
+          AI Generated summary
+        </h2>
+
+        <p class="mt-4 text-sm sm:text-base text-gray-800">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat perspiciatis voluptate architecto minus nemo reiciendis aspernatur corporis fugit, sit quae?
+        </p>
+
+      </div>
+
       <div class="mt-6">
         <ul class="relative space-y-12">
           <span class="absolute left-6 top-0 h-full w-px bg-gray-300" aria-hidden="true"></span>
