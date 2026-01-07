@@ -8,6 +8,10 @@ from django.contrib import messages
 from django.db.models import Exists, OuterRef, F
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from .tasks import generate_review_summary_for_book
+from django.db import transaction
+from .models import ReviewSummary
+from django.contrib.admin.views.decorators import staff_member_required
 
 # Create your views here.
 def home(request):
@@ -169,3 +173,20 @@ def book_search_suggestions(request):
         })
 
     return JsonResponse({"results": results})
+
+@staff_member_required
+def test_generate_summary_once(request, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+
+    with transaction.atomic():
+        rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
+
+        if rs.is_generating or rs.summary_text:
+            return redirect("home")
+
+        rs.is_generating = True
+        rs.save(update_fields=["is_generating"])
+
+        generate_review_summary_for_book.delay(book.id)
+
+    return redirect("home")
