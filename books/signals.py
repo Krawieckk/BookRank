@@ -50,3 +50,52 @@ def decrease_review_count(sender, instance, **kwargs):
         )
 
     transaction.on_commit(update)
+
+@receiver(post_delete, sender=ReviewSummary)
+def update_book_after_removing_summary(sender, instance: ReviewSummary, **kwargs):
+
+    book_id = instance.book_id
+    
+    def update():
+        Book.objects.filter(id=book_id).update(
+            summary_generated = False
+        )
+
+    transaction.on_commit(update)
+
+@receiver(post_save, sender=Review)
+def review_created_maybe_trigger_summary(sender, instance: Review, created: bool, **kwargs):
+    if not created:
+        return
+
+    book = instance.book
+    if not book.allow_summary or not book.is_active:
+        return
+
+    with transaction.atomic():
+        rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
+
+        # +1 do liczby dodanych recenzji
+        ReviewSummary.objects.filter(pk=rs.pk).update(
+            reviews_added_count=F("reviews_added_count") + 1
+        )
+        rs.refresh_from_db()
+
+        should_generate = (
+            (not rs.is_generating) and
+            (rs.reviews_added_count - rs.last_summarized_count >= 20)
+        )
+
+        if not should_generate:
+            return
+
+        # ustaw is_generating=True w sposób “atomowy”, żeby uniknąć dubli
+        updated = ReviewSummary.objects.filter(pk=rs.pk, is_generating=False).update(is_generating=True)
+        if updated != 1:
+            return
+
+        def _enqueue():
+            from .tasks import generate_review_summary_for_book
+            generate_review_summary_for_book.delay(book.id)
+
+        transaction.on_commit(_enqueue)

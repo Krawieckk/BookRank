@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Book, Review, ReviewHelpfulness, ToRead
+from .models import Book, Review, ReviewHelpfulness, ToRead, ReviewSummary
 from .forms import ReviewForm, HelpfulReviewForm
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -10,8 +10,8 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .tasks import generate_review_summary_for_book
 from django.db import transaction
-from .models import ReviewSummary
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
 
 # Create your views here.
 def home(request):
@@ -20,14 +20,15 @@ def home(request):
 
 def book_page(request, pk):
     book = get_object_or_404(Book, id=pk)
-    to_read_added = ToRead.objects.filter(book=book, user=request.user).exists()
 
     review_form = ReviewForm()
 
     if request.user.is_authenticated:
         current_user_review = Review.objects.filter(book=book, user=request.user).first()
+        to_read_added = ToRead.objects.filter(book=book, user=request.user).exists()
     else:
         current_user_review = None
+        to_read_added = None
 
     reviews_qs = Review.objects.filter(book=book)
     if current_user_review:
@@ -41,11 +42,14 @@ def book_page(request, pk):
                     review_id=OuterRef("pk")
                 )
             )
-        )
+        ).order_by('-helpful_count', '-inserted_at')
     else:
         reviews_qs = reviews_qs.annotate(
             user_has_liked=Exists(ReviewHelpfulness.objects.none())
-        )
+        ).order_by('-helpful_count', '-inserted_at')
+
+    # Top 5 most helpful reviews
+    reviews_qs = reviews_qs[:5]
 
     context = {
         "book": book,
@@ -55,6 +59,30 @@ def book_page(request, pk):
         "to_read_added": to_read_added
     }
     return render(request, "book_page.html", context)
+
+def all_reviews(request, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+
+    if request.user.is_authenticated:
+        current_user_review = Review.objects.filter(book=book, user=request.user).first()
+    else:
+        current_user_review = None
+
+    reviews = Review.objects.filter(book=book).order_by('-helpful_count', '-inserted_at')
+
+    paginator = Paginator(reviews, 5)
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'book': book, 
+        'reviews': reviews, 
+        'current_user_review': current_user_review, 
+        'page_obj': page_obj
+    }
+
+    return render(request, 'all_reviews.html', context)
 
 def _user_has_liked_check(qs, user):
     if user.is_authenticated:

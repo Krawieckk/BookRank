@@ -25,8 +25,8 @@
         {{ book.title }}
       </h1>
 
-      <dl class="mt-6 space-y-2 text-sm text-gray-800">
-        <div class="flex flex-col gap-1 md:flex-row md:gap-3">
+      <dl class="mt-6 space-y-4 text-sm text-gray-800">
+        <div class="flex gap-1 md:flex-row md:gap-3 text-left">
           <dt class="font-medium text-gray-900">Author:</dt>
           <dd class="text-gray-700">
             {% if book.authors.all %}
@@ -39,7 +39,7 @@
           </dd>
         </div>
 
-        <div class="flex flex-col gap-1 md:flex-row md:gap-3">
+        <div class="flex gap-1 md:gap-3">
           <dt class="font-medium text-gray-900">Tags:</dt>
           <dd class="text-gray-700">
             {% if book.tags.all %}
@@ -56,21 +56,39 @@
           </dd>
         </div>
 
-        <div class="flex flex-col gap-1 md:flex-row md:gap-3">
+        <div class="flex gap-1 md:gap-3">
           <dt class="font-medium text-gray-900">Publisher:</dt>
           <dd class="text-gray-700">
             {{ book.publisher }}
           </dd>
         </div>
+
+        <div class="flex gap-1 md:gap-3">
+          <dt class="font-medium text-gray-900">Publication year:</dt>
+          <dd class="text-gray-700">
+            {{ book.publication_year }}
+          </dd>
+        </div>
+
+        <div class="flex gap-1 md:gap-3">
+          <dt class="font-medium text-gray-900">More information: </dt>
+          <a href="{{ book.info_link }}" target="_blank">
+            <dd class="text-blue-600">
+            Books Google 
+          </dd>
+          </a>
+          
+        </div>
       </dl>
-    </div>
-    <div id="to_read_slot">
-      {% include 'partials/to_read_button.html' %}
     </div>
 
   </div>
 
-  <div class="mt-12 md:mt-10">
+  <div id="to_read_slot" class="my-8 md:my-12 flex items-start justify-center md:justify-start">
+      {% include 'partials/to_read_button.html' %}
+  </div>
+
+  <div class="mt-2 md:mt-10">
     <h2 class="text-lg font-medium text-gray-700">
       Description
     </h2>
@@ -85,6 +103,19 @@
       {% endif %}
     </div>
   </div>
+
+  {% if book.summary_generated %}
+    <div class="mt-8 md:mt-10">
+        <h2 class="text-lg font-medium text-gray-700">
+          AI Generated summary <span class="text-sm">(based on 30 most helpful reviews)</span>
+        </h2>
+
+        <p class="mt-4 text-sm sm:text-base text-gray-800">
+          {{ book.review_summary.summary_text }}
+        </p>
+
+      </div>
+  {% endif %}
 
     <div class="mt-12 md:mt-10">
     <div class="flex flex-col gap-2">
@@ -111,18 +142,6 @@
     {% endif %}
 
     {% if reviews %}
-
-    <div class="mt-8 md:mt-10">
-        <h2 class="text-lg font-medium text-gray-700">
-          AI Generated summary
-        </h2>
-
-        <p class="mt-4 text-sm sm:text-base text-gray-800">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat perspiciatis voluptate architecto minus nemo reiciendis aspernatur corporis fugit, sit quae?
-        </p>
-
-      </div>
-
       <div class="mt-6">
         <ul class="relative space-y-12">
           <span class="absolute left-6 top-0 h-full w-px bg-gray-300" aria-hidden="true"></span>
@@ -142,7 +161,15 @@
     {% endif %}
   </div>
 
-
+  {% if book.reviews_count > 5 %}
+  <div class="flex items-center justify-center mt-10">
+      <a href="{% url 'all_reviews' book.id %}" 
+      class="text-sm text-gray-700 px-4 py-3 hover:bg-gray-100 border border-gray-400">
+        Show all {{ book.reviews_count }} reviews
+      </a>
+    
+  </div>
+  {% endif %}
 
   </div>
 </section>
