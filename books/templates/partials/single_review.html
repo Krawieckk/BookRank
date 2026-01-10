@@ -1,9 +1,9 @@
 <li class="relative pl-16" id="review-{{ review.id }}">
     <div class="absolute left-2 top-0">
     <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center ring-4 ring-white">
-        <svg viewBox="0 0 24 24" class="h-6 w-6 text-gray-500" fill="currentColor" aria-hidden="true">
-        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.41 0-8 2-8 4.5A1.5 1.5 0 0 0 5.5 20h13A1.5 1.5 0 0 0 20 18.5C20 16 16.41 14 12 14Z"/>
-        </svg>
+        <img class="rounded-full w-9 h-9 border border-black"
+            src="{{ review.user.profile.profile_picture.url }}"
+            alt="Profile picture">
     </div>
     </div>
 

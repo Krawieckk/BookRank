@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 # Create your models here.
 class Author(models.Model):
@@ -56,7 +57,7 @@ class Review(models.Model):
     is_active = models.BooleanField(default=True)
     helpful_count = models.PositiveIntegerField(default=0, db_index=True)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -78,7 +79,7 @@ class ReviewSummary(models.Model):
 class ReviewHelpfulness(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
 
     class Meta:
@@ -98,7 +99,7 @@ class ToRead(models.Model):
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     is_finished = models.BooleanField(default=False)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
     class Meta:
