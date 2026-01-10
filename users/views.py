@@ -18,8 +18,6 @@ def register_site(request):
             form.save()
             
             user = authenticate(request, username=username, password=password)
-
-            Profile.objects.create(user=user)
             
             login(request, user)
 

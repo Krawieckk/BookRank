@@ -4,27 +4,34 @@
 <div class="container w-full h-[85vh] flex justify-center items-center">
     <div class="w-full flex flex-col justify-center items-center">
         <h2 class="mb-6 text-xl md:text-2xl">Login-in to BookRank</h2>
-        <form method='POST' class="w-[80%] sm:w-[350px] flex flex-col justify-center items-center gap-3 sm:gap-4">
+        <form method='POST' class="w-[80%] sm:w-[350px] flex flex-col justify-center items-center gap-3 sm:gap-4 text-sm md:text-base">
             {% csrf_token %}
 
             <div class="w-full flex flex-col justify-center gap-1">
                 <label for="{{ form.username.id }}" class="w-full" >Username</label>
-                <!-- <input class="w-full border px-2 py-1" type="text" id="username" name="username"> -->
                  {{ form.username }}
             </div>
 
             <div class="w-full flex flex-col justify-center gap-1">
                 <label for="{{ form.password.id }}" class="w-full" >Password</label>
-                <!-- <input class="w-full border px-2 py-1 " type="password" id="password" name="password"> -->
                  {{ form.password }}
-                <p>Forgot password</p>
             </div>
 
-            <input class="border w-full mt-4 py-1 bg-[#2e4052] text-white" type="submit" value="Sign-in">
+            <p class="text-sm md:text-base mt-2 block w-full text-left">Forgot password? <a href="{% url 'password_reset' %}" class="px-2 py-2">Reset</a></p>
 
-            <div class="w-full flex items-center justify-evenly">
+            {% if error_message %}
+                <p class="text-red-600">{{ error_message }}</p>
+            {% endif %}
+
+            <input class="border w-full mt-4 py-2 bg-[#2e4052] text-white text-sm md:text-base" type="submit" value="Sign-in">
+
+            <div class="w-full flex items-center justify-between mt-2">
                 <p>Don't have an account yet?</p>
-                <a href="{% url 'register' %}">Register</a>
+                <a href="{% url 'register' %}"
+                    class="px-3 py-1 border-b"
+                    aria-label="Register">
+                    Register
+                </a>
             </div>
         </form>
     </div>
