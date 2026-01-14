@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Book, Review, ReviewHelpfulness, ToRead, ReviewSummary
+from .models import Book, Review, ReviewHelpfulness, Library, ReviewSummary
 from .forms import ReviewForm, HelpfulReviewForm
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -25,10 +25,10 @@ def book_page(request, pk):
 
     if request.user.is_authenticated:
         current_user_review = Review.objects.filter(book=book, user=request.user).first()
-        to_read_added = ToRead.objects.filter(book=book, user=request.user).exists()
+        added_to_library = Library.objects.filter(book=book, user=request.user).exists()
     else:
         current_user_review = None
-        to_read_added = None
+        added_to_library = None
 
     reviews_qs = Review.objects.filter(book=book)
     if current_user_review:
@@ -56,7 +56,7 @@ def book_page(request, pk):
         "reviews": reviews_qs,
         "current_user_review": current_user_review,
         "review_form": review_form,
-        "to_read_added": to_read_added
+        "added_to_library": added_to_library
     }
     return render(request, "book_page.html", context)
 
@@ -159,18 +159,18 @@ def unmark_helpful(request, review_id):
 def add_to_read(request, book_id):
     book = get_object_or_404(Book, id=book_id)
 
-    _, created = ToRead.objects.get_or_create(user=request.user, book=book)
+    _, created = Library.objects.get_or_create(user=request.user, book=book)
     
-    return render(request, 'partials/to_read_button.html', {'to_read_added': True, 'book': book})
+    return render(request, 'partials/to_read_button.html', {'added_to_library': True, 'book': book})
 
 @require_POST
 @login_required
 def remove_to_read(request, book_id):
     book = get_object_or_404(Book, id=book_id)
 
-    deleted, _ = ToRead.objects.filter(user=request.user, book=book).delete()
+    deleted, _ = Library.objects.filter(user=request.user, book=book).delete()
 
-    return render(request, 'partials/to_read_button.html', {'to_read_added': False, 'book': book})
+    return render(request, 'partials/to_read_button.html', {'added_to_library': False, 'book': book})
 
 def book_search_suggestions(request):
     q = (request.GET.get("q") or "").strip()

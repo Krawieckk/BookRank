@@ -1,5 +1,5 @@
 {% if user.is_authenticated %}
-    {% if to_read_added %}
+    {% if added_to_library %}
     <button
         type="button" 
         hx-post="{% url 'remove_to_read' book.id %}"
