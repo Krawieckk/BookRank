@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
 from .models import Book, Review, ReviewHelpfulness, Library, ReviewSummary
-from .forms import ReviewForm, HelpfulReviewForm
+from .forms import ReviewForm
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.db.models import Exists, OuterRef, F

@@ -34,7 +34,7 @@ def generate_review_summary_for_book(self, book_id: int):
 
     reviews = list(
         Review.objects
-        .filter(book_id=book_id, is_active=True, only_rating=False)
+        .filter(book_id=book_id, is_active=True)
         .annotate(helpfulness=Count("reviewhelpfulness"))
         .order_by("-helpfulness", "-inserted_at")[:30]
     )

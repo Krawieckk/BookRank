@@ -50,7 +50,6 @@ class Review(models.Model):
 
     rating = models.PositiveSmallIntegerField(choices=rating_choices)
     review_text = models.TextField()
-    only_rating = models.BooleanField(default=False)
     inserted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     is_active = models.BooleanField(default=True)
