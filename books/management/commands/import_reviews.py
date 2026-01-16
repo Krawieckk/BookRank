@@ -73,7 +73,6 @@ class Command(BaseCommand):
             raise CommandError("No books found in DB. Import books first.")
 
         created_reviews = 0
-        skipped_no_title = 0
         skipped_book_not_found = 0
         rows_processed = 0
 
@@ -95,9 +94,6 @@ class Command(BaseCommand):
                 rows_processed += 1
 
                 title = (row.get("Title") or "").strip()
-                if not title:
-                    skipped_no_title += 1
-                    continue
 
                 book_id = book_map.get(normalize_title(title))
                 if not book_id:
@@ -109,7 +105,6 @@ class Command(BaseCommand):
                     continue
 
                 review_text = (row.get("review/text") or "").strip() or None
-                only_rating = review_text is None
 
                 buffer.append(
                     Review(
@@ -117,7 +112,6 @@ class Command(BaseCommand):
                         book_id=book_id,
                         rating=rating,
                         review_text=review_text,
-                        only_rating=only_rating,
                         is_active=True,
                     )
                 )
@@ -129,11 +123,8 @@ class Command(BaseCommand):
                     buffer.clear()
 
                 if rows_processed % progress_every == 0:
-                    elapsed = time.time() - start
-                    rps = rows_processed / elapsed if elapsed > 0 else 0
                     self.stdout.write(
                         f"Processed: {rows_processed:,} | Inserted: {created_reviews:,} | "
-                        f"Missing book: {skipped_book_not_found:,} | ~{rps:,.0f} rows/s"
                     )
 
             if buffer:
@@ -141,14 +132,10 @@ class Command(BaseCommand):
                     Review.objects.bulk_create(buffer, batch_size=batch_size)
                 buffer.clear()
 
-        elapsed = time.time() - start
-        rps = rows_processed / elapsed if elapsed > 0 else 0
 
         self.stdout.write(self.style.SUCCESS(
             "Reviews import finished.\n"
             f"- Rows processed: {rows_processed:,}\n"
             f"- Reviews inserted: {created_reviews:,}\n"
-            f"- Skipped (no Title): {skipped_no_title:,}\n"
             f"- Skipped (book not found): {skipped_book_not_found:,}\n"
-            f"- Total time: {elapsed:,.1f}s (~{rps:,.0f} rows/s)\n"
         ))
