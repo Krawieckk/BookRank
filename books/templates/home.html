@@ -3,11 +3,20 @@
 
 {% block content %}
 
-<div class="w-full flex flex-col justify-center items-center gap-12">
-    <h2 class="text-lg sm:text-xl text-center">This is the place to find your next book...</h2>
+<section class="w-full flex flex-col justify-center items-center gap-12 sm:py-8 md:py-12">
+    <h2 class="sm:text-lg md:text-xl text-center">This is the place to find your next book...</h2>
     {% include 'search_bar.html' %}
-    <h3 class="text-xl">Or use the filters instead!</h3>
-</div>
+</section>
+
+<section class="w-full  mt-12 sm:mt-20 bg-[#2e4052] absolute left-0 py-8 text-white flex justify-center items-center">
+
+    <div class="w-full container flex justify-center items-center flex-col sm:flex-row gap-16 sm:gap-24 md:gap-44 py-4">
+        {% include 'partials/home_tags_filter.html' %}
+        {% include 'partials/home_authors_filter.html' %}
+    </div>
+</section>
+
+
 
 {% endblock %}
 

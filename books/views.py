@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Book, Review, ReviewHelpfulness, Library, ReviewSummary
+from .models import Book, Review, ReviewHelpfulness, Library, ReviewSummary, Author, Tag
 from .forms import ReviewForm
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -15,8 +15,13 @@ from django.core.paginator import Paginator
 
 # Create your views here.
 def home(request):
+    popular_authors = ["Louis L'Amour", "Agatha Christie", "William Shakespeare", "Edgar Rice Burroughs", "Rudyard Kipling", "John Buchan", "Zane Grey"]
+    popular_tags = ["Fiction", "History", "Religion", "Juvenile Fiction", "Biography & Autobiography", "Business & Economics", "Computers", "Social Science", "Juvenile Nonfiction", "Science", "Education"]
+
     user = request.user
-    return render(request, 'home.html', context={'user': user})
+    return render(request, 'home.html', context={'user': user, 
+                                                 'authors': popular_authors, 
+                                                 'tags': popular_tags})
 
 def book_page(request, pk):
     book = get_object_or_404(Book, id=pk)

@@ -15,14 +15,20 @@ def normalize_title(s: str) -> str:
 def clamp_rating(value):
     if value is None:
         return None
+    
     s = str(value).strip()
     if not s or s.lower() == "nan":
         return None
+
     try:
-        r = int(float(s))
-    except Exception:
+        rating = int(float(s))
+    except ValueError:
         return None
-    return max(1, min(5, r))
+    
+    if 1 <= rating <= 5:
+        return rating
+
+    return None
 
 
 class Command(BaseCommand):
