@@ -33,10 +33,18 @@
                 role="menu"
                 aria-labelledby="profile-toggle">
 
-              <a href="{% url 'home' %}"
+              <a href="{% url 'profile' %}"
                 class="block px-4 py-2 text-sm hover:bg-white/10"
                 role="menuitem">
                 Profile
+              </a>
+
+              <div class="h-px bg-white/10"></div>
+
+              <a href="{% url 'settings' %}"
+                class="block px-4 py-2 text-sm hover:bg-white/10"
+                role="menuitem">
+                Settings
               </a>
 
               <div class="h-px bg-white/10"></div>
@@ -65,7 +73,7 @@
 
         {% if user.is_authenticated %}
           <li class="w-full pt-1 pb-2">
-            <a class="block w-full h-full" href="{% url 'home' %}">Profile</a>
+            <a href="{% url 'profile' %}" class="block w-full h-full">Profile</a>
           </li>
           <li class="w-full text-center py-2">
             <a href="{% url 'logout' %}" class="text-red-400">Logout</a>

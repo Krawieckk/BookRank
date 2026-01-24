@@ -3,17 +3,31 @@
 
 {% block content %}
 
-<section class="w-full flex flex-col justify-center items-center gap-12 sm:py-8 md:py-12">
-    <h2 class="sm:text-lg md:text-xl text-center">This is the place to find your next book...</h2>
-    {% include 'search_bar.html' %}
+<section class="w-full flex flex-col justify-center items-center gap-12 sm:py-8">
+    <h2 class="sm:text-lg md:text-xl text-center font-semibold">This is the place to find your next book...</h2>
+    {% include 'partials/search_bar.html' %}
 </section>
 
-<section class="w-full  mt-12 sm:mt-20 bg-[#2e4052] absolute left-0 py-8 text-white flex justify-center items-center">
+<section class="relative w-full mt-12 sm:mt-16 py-8 text-white flex justify-center items-center 
+                before:content-[''] before:absolute before:inset-0 before:bg-[#2e4052] 
+                before:w-[200vw] before:left-[-50vw] before:-z-10 overflow-visible">
 
-    <div class="w-full container flex justify-center items-center flex-col sm:flex-row gap-16 sm:gap-24 md:gap-44 py-4">
+    <div class="container mx-auto flex justify-center items-center flex-col sm:flex-row gap-10 sm:gap-24 md:gap-44 py-4">
         {% include 'partials/home_tags_filter.html' %}
         {% include 'partials/home_authors_filter.html' %}
     </div>
+</section>
+
+<section class="w-full flex flex-col justify-center items-center gap-6 sm:py-8 md:py-12 mt-8 px-6 text-left sm:text-center">
+    <div class="max-w-[650px] flex flex-col justify-center items-start sm:items-center gap-6">
+        <h2 class="text-center sm:text-lg font-semibold">Find a book that you will like even quicker!</h2>
+        <p class="text-sm sm:text-base">If you’re not sure whether you’ll like a book or not but don’t have time to read through all of the reviews - take a look at the AI generated summary based on most popular reviews!</p>
+        <a class="border-b py-2 px-2 text-sm hover:bg-gray-100 transition-colors"
+           href="/">
+           Books with reviews summary
+        </a>
+    </div>
+    
 </section>
 
 

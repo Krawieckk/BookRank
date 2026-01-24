@@ -12,6 +12,8 @@ from .tasks import generate_review_summary_for_book
 from django.db import transaction
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
+from django.http import HttpResponse
+from django.views.decorators.http import require_http_methods
 
 # Create your views here.
 def home(request):
@@ -135,6 +137,28 @@ def add_review(request, pk):
 
 @require_POST
 @login_required
+def delete_your_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    review.delete()
+
+    response = HttpResponse("")
+    response['HX-Trigger'] = 'reviewDeleted'
+
+    return response
+
+@login_required
+def refresh_review_form(request, book_id):
+
+    book = get_object_or_404(Book, id=book_id)
+
+    return render(request, 'partials/review_form.html', {
+        'review_form': ReviewForm(),
+        'book': book, 
+        "current_user_review": None
+    })
+
+@require_POST
+@login_required
 def mark_helpful(request, review_id):
     review = get_object_or_404(Review, id=review_id)
 
@@ -223,3 +247,8 @@ def test_generate_summary_once(request, book_id):
         generate_review_summary_for_book.delay(book.id)
 
     return redirect("home")
+
+@login_required
+def profile(request):
+    user = request.user
+    return render(request, 'profile.html', {'user': user})

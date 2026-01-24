@@ -11,8 +11,8 @@
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% include 'navbar.html' %}
-    <main class="w-full flex flex items-center justify-center relative">
-        <div class="w-full container sm:px-4 py-8 sm:py-12">
+    <main class="w-full flex flex items-center justify-center relative overflow-x-hidden">
+        <div class="w-full container sm:px-4 py-8 sm:py-12 ">
         {% block content %}{% endblock %}
 
         {% block scripts %}{% endblock %}
