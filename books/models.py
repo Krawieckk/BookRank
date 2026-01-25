@@ -93,13 +93,19 @@ class ReviewHelpfulness(models.Model):
         return f'{self.user} -> {self.review}'
 
 class Library(models.Model):
-    to_read = models.BooleanField(default=True)
-    reading = models.BooleanField(default=False)
-    finished_reading = models.BooleanField(default=False)
+
+    reading_status_choices = {
+        'to_read': 'to_read', 
+        'in_progress': 'in_progress', 
+        'finished': 'finished'
+    }
+
+    reading_status = models.CharField(default='to_read', 
+                                      choices=reading_status_choices)
+    
     added_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
-    is_finished = models.BooleanField(default=False)
-
+    
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
 

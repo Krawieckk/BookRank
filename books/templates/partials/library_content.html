@@ -1,0 +1,12 @@
+<section class="w-full flex flex-col items-center justify-center gap-2">
+        <h1 class="font-semibold text-lg md:text-xl">Your library</h1>
+        <p class="text-center">Save books and track your reading progress</p>
+</section>
+
+<section class="w-full grid place-items-center grid-cols-2 gap-4 sm:flex sm:flex-row items-center text-sm sm:text-base sm:justify-evenly max-w-[320px] sm:max-w-[800px] filter-buttons">
+    {% include 'partials/library_filters.html' %}
+</section>
+
+<section id="book-list" class="w-full flex flex-col items-center justify-center">
+    {% include 'partials/library_books.html' %}
+</section>

@@ -13,7 +13,6 @@ from django.db import transaction
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse
-from django.views.decorators.http import require_http_methods
 
 # Create your views here.
 def home(request):
@@ -252,3 +251,63 @@ def test_generate_summary_once(request, book_id):
 def profile(request):
     user = request.user
     return render(request, 'profile.html', {'user': user})
+
+def _get_user_library(user, active_filter):
+    entries = Library.objects.filter(user=user)
+    if active_filter == "to_read":
+        entries = entries.filter(reading_status="to_read")
+    elif active_filter == "in_progress":
+        entries = entries.filter(reading_status="in_progress")
+    elif active_filter == "finished":
+        entries = entries.filter(reading_status="finished")
+
+    return entries
+
+@login_required
+def library(request):
+
+    active_filter = request.GET.get('filter', 'all')
+    user_library = _get_user_library(request.user, active_filter)
+
+    context = {
+        'active_filter': active_filter,
+        'user_library': user_library
+    }
+
+    if request.headers.get('HX-Request'):
+       return render(request, "partials/library_content.html", context)
+
+    return render(request, "library.html", context)
+
+@login_required
+def update_library_status(request, entry_id, new_status):
+    if request.method == 'POST':
+        entry = get_object_or_404(Library, id=entry_id, user=request.user)
+        entry.reading_status = new_status
+        entry.save()
+
+        active_filter = request.GET.get('filter', 'all')
+        user_library = _get_user_library(request.user, active_filter)
+
+        context = {
+            'active_filter': active_filter, 
+            'user_library': user_library
+        }
+        
+        return render(request, 'partials/library_content.html', context)
+    
+@login_required
+def delete_from_library(request, entry_id):
+    if request.method == 'POST':
+        entry = get_object_or_404(Library, id=entry_id, user=request.user)
+        entry.delete()
+
+        active_filter = request.GET.get('filter', 'all')
+        user_library = _get_user_library(request.user, active_filter)
+
+        context = {
+            'active_filter': active_filter, 
+            'user_library': user_library
+        }
+        
+        return render(request, 'partials/library_content.html', context)

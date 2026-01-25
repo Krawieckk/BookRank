@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import home, book_search_suggestions, book_page, mark_helpful, unmark_helpful, add_review, add_to_read, remove_to_read, test_generate_summary_once, all_reviews, profile, delete_your_review, refresh_review_form
+from .views import home, book_search_suggestions, book_page, mark_helpful, unmark_helpful, add_review, add_to_read, remove_to_read, test_generate_summary_once, all_reviews, profile, delete_your_review, refresh_review_form, library, update_library_status, delete_from_library
 
 urlpatterns = [
     path('', home, name='home'), 
@@ -14,6 +14,9 @@ urlpatterns = [
     path("search/suggest/", book_search_suggestions, name="book_search_suggestions"),
     path("test-generate-summary/<int:book_id>/", test_generate_summary_once),
     path("profile/", profile, name='profile'), 
+    path("library/", library, name='library'),
+    path("library/<int:entry_id>/<str:new_status>/", update_library_status, name='update_library_status'),
+    path("library/<int:entry_id>/", delete_from_library, name='delete_from_library'),
 
     path("review/<int:book_id>/refresh_review_form", refresh_review_form, name='refresh_review_form')
 ]
