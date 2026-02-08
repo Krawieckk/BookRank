@@ -1,0 +1,18 @@
+<div class="space-y-2">
+  {% for a in authors %}
+    {% with a_id=a.id|stringformat:"s" %}
+      <label class="flex cursor-pointer items-center gap-3">
+        <input
+          type="checkbox"
+          name="authors"
+          value="{{ a.id }}"
+          class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+          {% if a_id in selected_authors %}checked{% endif %}
+        >
+        <span class="text-sm text-slate-700">{{ a.name }}</span>
+      </label>
+    {% endwith %}
+  {% empty %}
+    <p class="text-sm text-slate-500">No authors found.</p>
+  {% endfor %}
+</div>

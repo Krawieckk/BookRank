@@ -14,7 +14,7 @@
       <ul class="flex items-center gap-8">
         <li><a href="/" class="hover:opacity-75">Top rated</a></li>
         <li><a href="/" class="hover:opacity-75">Best authors</a></li>
-        <li><a href="/" class="hover:opacity-75">Explore</a></li>
+        <li><a href="{% url 'explore' %}" class="hover:opacity-75">Explore</a></li>
 
         {% if user.is_authenticated %}
           <li class="relative">
@@ -77,7 +77,7 @@
       <ul class="flex flex-col w-full gap-3 pt-2 text-left items-center">
         <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="/">Top rated</a></li>
         <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="/">Best authors</a></li>
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="/">Explore</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="{% url 'explore' %}">Explore</a></li>
 
         {% if user.is_authenticated %}
           <li class="w-full pt-1 pb-2">

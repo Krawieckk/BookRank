@@ -1,0 +1,203 @@
+<div class="w-full flex flex-col items-center justify-center px-6">
+
+  <div class="w-full flex flex-col lg:flex-row gap-10 mt-12">
+
+    <aside class="w-full flex flex-col sm:flex-row px-4 lg:max-w-72">
+      <div class="sticky top-6 w-full">
+        <div class="mb-6">
+          <div class="flex items-baseline justify-between">
+            <h2 class="text-lg font-semibold text-slate-900">Filters</h2>
+            <a href="{% url 'explore' %}" class="text-sm text-slate-500 hover:text-slate-700">
+              Clear all filters
+            </a>
+          </div>
+        </div>
+
+
+        <form method="get"
+              id="filtersForm"
+              class="space-y-5 w-full "
+              hx-get="{% url 'explore' %}"
+              hx-target="#exploreSection"
+              hx-push-url="true"
+              hx-trigger="change delay:150ms, submit">
+          <input type="hidden" name="sort" value="{{ sort }}"/>
+
+          
+            <!-- AUTHORS -->
+            <section class="border-b-1 border-slate-200 pb-5">
+              <h3 class="text-sm font-semibold text-slate-900 ">Authors</h3>
+
+              <div class="relative w-full text-sm mt-3">
+                <input
+                id="authors-search-input"
+                data-endpoint="{% url 'authors_search_suggestions' %}"
+                type="text"
+                autocomplete="off"
+                placeholder="Search..."
+                class="w-full h-8 text-xs  border border-gray-300 rounded-md pl-4 outline-none focus:ring-2 focus:ring-slate-300 focus:border-slate-300"
+                />
+
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+
+                <div
+                  id="authors-search-results"
+                  class="hidden absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden"
+                  role="listbox"
+                  aria-label="Search suggestions"
+                ></div>
+              </div>
+
+              <div class="mt-3 max-h-64 overflow-auto rounded-lg border border-slate-200 p-3" id="authorsList">
+                  {% include "_filter_authors_list.html" with authors=authors selected_authors=selected_authors %}
+              </div>
+            </section>
+
+            <!-- TAGS -->
+            <section class="border-b-1 border-slate-200 pb-5">
+              <h3 class="text-sm font-semibold text-slate-900">Tags</h3>
+
+              <div class="relative w-full text-sm mt-3">
+                <input
+                id="tags-search-input"
+                data-endpoint="{% url 'tags_search_suggestions' %}"
+                type="text"
+                autocomplete="off"
+                placeholder="Search..."
+                class="w-full h-8 text-xs  border border-gray-300 rounded-md pl-4 outline-none focus:ring-2 focus:ring-slate-300 focus:border-slate-300"
+                />
+
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg> 
+                </div>
+
+                <div
+                  id="tags-search-results"
+                  class="hidden absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden"
+                  role="listbox"
+                  aria-label="Search suggestions"
+                ></div>
+
+              </div>
+
+              <div class="mt-3 max-h-64 overflow-auto rounded-lg border border-slate-200 p-3" id="tagsList">
+                  {% include "_filter_tags_list.html" with tags=tags selected_tags=selected_tags %}
+              </div>
+            </section>
+
+            <!-- PUBLISHED YEAR -->
+            <section class="border-b-1 border-slate-200 pb-5">
+              <h3 class="text-sm font-semibold text-slate-900 ">Publication year</h3>
+
+              <div class="relative w-full text-sm mt-3">
+                  <div class=" flex justify-between items-center px-2">
+
+                      <div class="flex flex-col w-[40%]">
+                        <label for="min_published_year" class="flex cursor-pointer items-center gap-3 text-xs">From</label>
+                          <input
+                            id="min_published_year"
+                            type="number"
+                            min='1700'
+                            max='{{current_year}}'
+                            value="{% if min_published_year %}{{min_published_year}}{% else %}{None}{% endif %}"
+                            placeholder="-"
+                            name="min_published_year"
+                            class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border"
+                          >
+                        </div>
+                      
+                      <div class="flex flex-col w-[40%]">
+                        <label for="max_published_year" class="flex cursor-pointer items-center gap-3 text-xs">To</label>
+                          <input
+                            id="max_published_year"
+                            type="number"
+                            min='1700'
+                            max='{{current_year}}'
+                            value="{% if max_published_year %}{{max_published_year}}{% else %}{{current_year}}{% endif %}"
+                            placeholder="-"
+                            name="max_published_year"
+                            class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border"
+                          >
+                        </div>
+                      
+                </div>
+              </div>
+            </section>
+
+            <!-- PUBLISHERS -->
+            <section class="border-b-1 border-slate-200 pb-5">
+              <h3 class="text-sm font-semibold text-slate-900">Publishers</h3>
+
+              <div class="relative w-full text-sm mt-3">
+                <input
+                id="publishers-search-input"
+                type="text"
+                autocomplete="off"
+                placeholder="Search..."
+                class="w-full h-8 text-xs  border border-gray-300 rounded-md pl-4 outline-none focus:ring-2 focus:ring-slate-300 focus:border-slate-300"
+                />
+
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35m1.6-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg> 
+                </div>
+
+                <div
+                  id="publishers-search-results"
+                  class="hidden absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden"
+                  role="listbox"
+                  aria-label="Search suggestions"
+                ></div>
+
+              </div>
+
+              <div class="mt-3 max-h-64 overflow-auto rounded-lg border border-slate-200 p-3" id="publishersList">
+                  {% include "_filter_publishers_list.html" with publishers=publishers selected_publishers=selected_publishers %}
+              </div>
+            </section>
+
+            <section class="border-b-1 border-slate-200 pb-5">
+              <h3 class="text-sm font-semibold text-slate-900 ">AI Summary generated</h3>
+
+              <div class="relative w-full text-sm mt-3">
+                  <div class=" flex justify-between items-center px-2">
+
+                      <div class="flex flex-col w-[40%]">
+                        <label for="summary_generated" hidden class="flex cursor-pointer items-center gap-3 text-xs">AI Summary generated</label>
+                          <input
+                            id="summary_generated"
+                            type="checkbox"
+                            name="summary_generated"
+                            {% if summary_generated_filter %}checked{% endif %}
+                            class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border"
+                          >
+                        </div>
+                      
+                </div>
+              </div>
+            </section>
+
+        </form>
+      </div>
+    </aside>
+
+    <main class="col-span-12 md:col-span-8 lg:col-span-9 w-full">
+        <div id="exploreMain">
+            {% include 'partials/explore_main.html' %}
+      </div>
+    </main>
+  </div>
+</div>

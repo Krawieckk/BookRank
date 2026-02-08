@@ -17,11 +17,11 @@
                  {{ form.password }}
             </div>
 
-            <p class="text-sm md:text-base mt-2 block w-full text-left">Forgot password? <a href="{% url 'password_reset' %}" class="px-2 sm:px-4 py-2 hover:text-gray-700 ease-in-out transition-colors">Reset</a></p>
-
             {% if error_message %}
                 <p class="text-red-600">{{ error_message }}</p>
             {% endif %}
+
+            <p class="text-sm md:text-base mt-2 block w-full text-left">Forgot password? <a href="{% url 'password_reset' %}" class="px-2 sm:px-4 py-2 hover:text-gray-700 ease-in-out transition-colors">Reset</a></p>
 
             <input class="border w-full mt-4 py-2 bg-[#2e4052] text-white text-sm md:text-base" type="submit" value="Sign-in">
 

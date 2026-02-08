@@ -1,0 +1,72 @@
+
+<div class="space-y-6">
+  {% for book in page_obj.object_list %}
+    <article class="flex gap-5 border-b-1 border-slate-300">
+      <div class="h-24 w-16 md:h-40 md:w-28 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50 mb-5">
+        {% if book.cover_image %}
+          <img src="{{ book.cover_image }}" alt="{{ book.title }}" class="h-full w-full object-cover">
+        {% endif %}
+      </div>
+
+      <div class="flex w-full flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        <div class="">
+          <h3 class=" text-sm md:text-base font-semibold text-slate-900">
+            {{ book.title }}
+          </h3>
+
+          <p class="mt-1 text-xs lg:text-sm text-slate-600">
+            Author:
+            {% for a in book.authors.all %}
+              {{ a.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+              -
+            {% endfor %}
+          </p>
+
+          <p class="mt-1 text-xs lg:text-sm text-slate-600">
+            Average rating:
+            {% if book.average_rating %}
+              {{ book.average_rating }} out of 5.0
+            {% else %}
+              -
+            {% endif %}
+          </p>
+        </div>
+
+        <a
+          href="{% url 'book_page' book.pk %}"
+          class="inline-flex h-6 w-16 items-center justify-center rounded-lg border border-slate-900 text-sm font-semibold text-slate-900 hover:bg-slate-50"
+          aria-label="Open details"
+        >
+          →
+        </a>
+      </div>
+    </article>
+  {% empty %}
+    <p class="text-sm text-slate-600">No results</p>
+  {% endfor %}
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav class="mt-10 flex items-center justify-center gap-4">
+    {% if page_obj.has_previous %}
+      <a
+        class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+      >
+        Prev
+      </a>
+    {% endif %}
+
+    <span class="text-sm text-slate-600">
+      Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+      <a
+        class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+      >
+        Next
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}

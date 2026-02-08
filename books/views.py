@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Book, Review, ReviewHelpfulness, Library, ReviewSummary, Author, Tag
+from .models import Book, Review, ReviewHelpfulness, Library, ReviewSummary, Author, Tag, Publisher
 from .forms import ReviewForm
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -13,11 +13,47 @@ from django.db import transaction
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse
+from django.urls import reverse
+from datetime import datetime
+
+authors = {
+    2099: "Agatha Christie", 
+    3889: "Nora Roberts", 
+    1673: "Georgette Heyer", 
+    2744: "William Shakespeare", 
+    751: "John Steinbeck", 
+    2650: "Rex Stout", 
+    1934: "Carolyn Keene", 
+    1719: "C. S. Lewis", 
+    3132: "Janette Oke", 
+    3630: "Danielle Steel", 
+}
+
+tags = {
+    4: 'Fiction', 
+    7: 'Religion', 
+    17: 'History', 
+    12: 'Juvenile Fiction', 
+    155: 'Autobiography', 
+}
+
+publishers = {
+    69: 'Simon and Schuster', 
+    33: 'Penguin', 
+    18: 'Routledge',
+    64: 'John Wiley & Sons',
+    95: 'Harper Collins',
+    13: 'Cambridge University Press',
+    32: 'Courier Corporation',
+    47: 'Macmillan',
+    27: 'Vintage',
+    88: 'Oxford University Press'
+}
 
 # Create your views here.
 def home(request):
-    popular_authors = ["Louis L'Amour", "Agatha Christie", "William Shakespeare", "Edgar Rice Burroughs", "Rudyard Kipling", "John Buchan", "Zane Grey"]
-    popular_tags = ["Fiction", "History", "Religion", "Juvenile Fiction", "Biography & Autobiography", "Business & Economics", "Computers", "Social Science", "Juvenile Nonfiction", "Science", "Education"]
+    popular_authors = authors
+    popular_tags = tags
 
     user = request.user
     return render(request, 'home.html', context={'user': user, 
@@ -311,3 +347,204 @@ def delete_from_library(request, entry_id):
         }
         
         return render(request, 'partials/library_content.html', context)
+
+SORT_MAP = {
+    "rating_desc": "-average_rating",
+    "rating_asc": "average_rating",
+    "title_asc": "title",
+    "title_desc": "-title",
+    "newest": "-publication_year",
+    "oldest": "publication_year",
+}
+
+def explore(request):
+    qs = (
+        Book.objects
+        .prefetch_related("authors", "tags")
+        .filter(is_active=True)
+    )
+
+    selected_authors = request.GET.getlist("authors")
+    selected_tags = request.GET.getlist("tags")
+    selected_publishers = request.GET.getlist("publishers")
+
+    min_published_year = request.GET.get("min_published_year")
+    max_published_year = request.GET.get("max_published_year")    
+
+    summary_generated = request.GET.get('summary_generated')
+
+    selected_authors_qs = Author.objects.filter(id__in=selected_authors)
+    selected_tags_qs = Tag.objects.filter(id__in=selected_tags)
+    selected_publishers_qs = Publisher.objects.filter(id__in=selected_publishers)
+
+    base_authors_qs = Author.objects.filter(id__in=list(authors.keys()))
+    authors_qs = (base_authors_qs | selected_authors_qs).distinct().order_by('name')
+
+    base_tags_qs = Tag.objects.filter(id__in=list(tags.keys()))
+    tags_qs = (base_tags_qs | selected_tags_qs).distinct().order_by('name')
+
+    base_publishers_qs = Publisher.objects.filter(id__in=list(publishers.keys()))
+    publishers_qs = (base_publishers_qs | selected_publishers_qs).distinct().order_by('publisher_name')
+
+    selcted_authors_map = {
+        a.id: a.name
+        for a in Author.objects.filter(id__in=selected_authors_qs)
+    }
+
+    selected_tags_map = {
+        t.id: t.name
+        for t in Tag.objects.filter(id__in=selected_tags_qs)
+    }
+    
+    selected_publishers_map = {
+        p.id: p.publisher_name
+        for p in Publisher.objects.filter(id__in=selected_publishers_qs)
+    }
+
+    selected_filters_count = len(selected_authors) + len(selected_tags) + len(selected_publishers)
+
+    sort = request.GET.get("sort", "rating_desc")
+
+    if selected_authors:
+        qs = qs.filter(authors__id__in=selected_authors).distinct()
+
+    if selected_tags:
+        qs = qs.filter(tags__id__in=selected_tags).distinct()
+
+    if selected_publishers:
+        qs = qs.filter(publisher_id__in=selected_publishers).distinct()
+
+    if min_published_year:
+        qs = qs.filter(Q(publication_year__gte=int(min_published_year)))
+
+    if max_published_year:
+        qs = qs.filter(Q(publication_year__lte=int(max_published_year)))
+
+    if summary_generated == 'on':
+        qs = qs.filter(summary_generated=True)
+
+    qs = qs.order_by(SORT_MAP.get(sort, "-average_rating"))
+
+    paginator = Paginator(qs, 12)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+
+    context = {
+        "page_obj": page_obj,
+        "sort": sort,
+        "selected_authors": selected_authors,
+        "selected_authors_map": selcted_authors_map, 
+        "selected_tags": selected_tags,
+        "selected_tags_map": selected_tags_map,
+        "selected_publishers": selected_publishers, 
+        "selected_publishers_map": selected_publishers_map, 
+        "authors": authors_qs,
+        "tags": tags_qs,
+        "publishers": publishers_qs,
+        "selected_filters_count": selected_filters_count, 
+        "min_published_year": min_published_year, 
+        "max_published_year": max_published_year, 
+        "summary_generated_filter": summary_generated, 
+        "current_year": datetime.now().year
+    }
+
+    if request.headers.get("HX-Request") == "true":
+        target = request.headers.get('HX-Target')
+        if target == 'exploreMain':
+            return render(request, "partials/explore_main.html", context)
+        if target == 'exploreSection':
+            return render(request, 'partials/explore_section.html', context)
+
+    return render(request, "explore.html", context)
+
+
+AUTHORS_LIMIT = 20
+TAGS_LIMIT = 20
+
+def filter_authors(request):
+    q = request.GET.get("author_search_ui", "").strip()
+    selected_authors = request.GET.getlist("authors")
+
+    qs = Author.objects.order_by("name")
+    if q:
+        qs = qs.filter(name__icontains=q)
+
+    authors = qs[:AUTHORS_LIMIT]
+
+    return render(request, "_filter_authors_list.html", {
+        "authors": authors,
+        "selected_authors": selected_authors,
+    })
+
+
+def filter_tags(request):
+    q = request.GET.get("tag_q", "").strip()
+    selected_tags = request.GET.getlist("tags")
+
+    qs = Tag.objects.order_by("name")
+    if q:
+        qs = qs.filter(name__icontains=q)
+
+    tags = qs[:TAGS_LIMIT]
+
+    return render(request, "_filter_tags_list.html", {
+        "tags": tags,
+        "selected_tags": selected_tags,
+    })
+
+def authors_search_suggestions(request):
+    q = (request.GET.get("q") or "").strip()
+
+    if len(q) < 2:
+        return JsonResponse({"results": []})
+
+    authors = (
+        Author.objects
+        .filter(
+            Q(name__icontains=q)
+        )
+        .distinct()
+        .only("id", "name")
+        .order_by("name")[:5]
+    )
+
+    base_url = reverse("explore")
+
+    results = []
+    for a in authors:
+        results.append({
+            "id": a.id,
+            "name": a.name,
+            "url": f"{base_url}?authors={a.id}",
+        })
+
+    return JsonResponse({"results": results})
+
+def tags_search_suggestions(request):
+    q = (request.GET.get("q") or "").strip()
+
+    if len(q) < 2:
+        return JsonResponse({"results": []})
+
+    authors = (
+        Tag.objects
+        .filter(
+            Q(name__icontains=q)
+        )
+        .distinct()
+        .only("id", "name")
+        .order_by("name")[:5]
+    )
+
+    base_url = reverse("explore")
+
+    results = []
+    for a in authors:
+        results.append({
+            "id": a.id,
+            "name": a.name,
+            "url": f"{base_url}?tags={a.id}",
+        })
+
+
+    return JsonResponse({"results": results})

@@ -1,0 +1,116 @@
+{% load querystring %}
+
+<div class=" flex flex-col gap-2 items-start">
+<p class="text-xs md:text-sm">Applied filters ({{selected_filters_count}}) :</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-3">
+    {% for id, name in selected_authors_map.items %}
+      <div class="group flex items-center justify-between gap-2 rounded-md border border-slate-200 bg-white px-1 md:px-2  h-7 md:h-9 shadow-sm hover:border-slate-300">
+        <p class="min-w-0 text-xs text-slate-700 truncate">{{name}}</p>
+        <button 
+            type="button"
+            hx-get="{% url 'explore' %}{% qs_remove 'authors' id %}"
+            hx-target="#exploreSection"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        </svg>
+      </div>
+    {% endfor %}
+
+    {% for id, name in selected_tags_map.items %}
+      <div class="group flex items-center justify-between gap-2 rounded-md border border-slate-200 bg-white px-1 md:px-2 h-9 shadow-sm hover:border-slate-300">
+        <p class="min-w-0 text-xs text-slate-700 truncate">{{name}}</p>
+        <button 
+            type="button"
+            type="button"
+            hx-get="{% url 'explore' %}{% qs_remove 'tags' id %}"
+            hx-target="#exploreSection"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.0" stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        </svg>
+      </div>
+    {% endfor %}
+      
+
+    {% for id, publisher_name in selected_publishers_map.items %}
+      <div class="group flex items-center justify-between gap-2 rounded-md border border-slate-200 bg-white px-1 md:px-2 h-9 shadow-sm hover:border-slate-300">
+        <p class="min-w-0 text-xs text-slate-700 truncate">{{publisher_name}}</p>
+        <button 
+            type="button"
+            hx-get="{% url 'explore' %}{% qs_remove 'publishers' id %}"
+            hx-target="#exploreSection"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.0" stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        </svg>
+      </div>
+    {% endfor %}
+
+    {% if summary_generated_filter %}
+      <div class="group flex items-center justify-between gap-2 rounded-md border border-slate-200 bg-white px-1 md:px-2 h-9 shadow-sm hover:border-slate-300">
+        <p class="min-w-0 text-xs text-slate-700 truncate">Summary generated</p>
+        <button 
+            type="button"
+            hx-get="{% url 'explore' %}{% qs_remove 'summary_generated' 'on' %}"
+            hx-target="#exploreSection"
+            hx-swap="innerHTML"
+            hx-push-url="true"
+            class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.0" stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        </svg>
+      </div>
+    {% endif %}
+
+
+</div>
+
+</div>
+
+          
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="text-sm text-slate-600">
+          Showing {{ page_obj.paginator.count }} results
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-slate-600">Sort by</span>
+
+          <form method="get">
+            {% for a in selected_authors %}
+              <input type="hidden" name="authors" value="{{ a }}">
+            {% endfor %}
+            {% for t in selected_tags %}
+              <input type="hidden" name="tags" value="{{ t }}">
+            {% endfor %}
+
+            <select
+              name="sort"
+              onchange="this.form.submit()"
+              class="h-8 w-56 text-xs md:text-sm rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+            >
+              <option value="rating_desc" {% if sort == "rating_desc" %}selected{% endif %}>Ratings - descending</option>
+              <option value="rating_asc"  {% if sort == "rating_asc" %}selected{% endif %}>Ratings - ascending</option>
+              <option value="title_asc"   {% if sort == "title_asc" %}selected{% endif %}>Title - A to Z</option>
+              <option value="title_desc"  {% if sort == "title_desc" %}selected{% endif %}>Title - Z to A</option>
+              <option value="newest"      {% if sort == "newest" %}selected{% endif %}>Publication year - newest</option>
+              <option value="oldest"      {% if sort == "oldest" %}selected{% endif %}>Publication year - oldest</option>
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <div id="results">
+        {% include "_results.html" %}
+      </div>

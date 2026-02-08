@@ -17,6 +17,12 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
     
+class Publisher(models.Model):
+    publisher_name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.publisher_name
+    
 class Book(models.Model):
     title = models.CharField(max_length=150)    
     description = models.TextField(blank=True, null=True)
@@ -24,7 +30,6 @@ class Book(models.Model):
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     reviews_count = models.IntegerField(default=0)
     cover_image = models.CharField(max_length=255, blank=True, null=True)
-    publisher = models.CharField(max_length=200, blank=True, null=True)
     info_link = models.CharField(max_length=300, blank=True, null=True)
     summary_generated = models.BooleanField(default=False)
     allow_summary = models.BooleanField(default=True)
@@ -34,6 +39,12 @@ class Book(models.Model):
 
     authors = models.ManyToManyField(Author, related_name='book_authors', blank=True)
     tags = models.ManyToManyField(Tag, related_name='book_tags', blank=True)
+
+    publisher = models.ForeignKey(Publisher, 
+                                  related_name='book_publisher', 
+                                  blank=True, 
+                                  null=True, 
+                                  on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title

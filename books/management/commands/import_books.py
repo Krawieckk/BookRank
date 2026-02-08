@@ -3,7 +3,7 @@ import csv
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from books.models import Book, Author, Tag
+from books.models import Book, Author, Tag, Publisher
 
 
 def parse_listish(value: str):
@@ -63,6 +63,7 @@ class Command(BaseCommand):
                 if reset_authors_tags:
                     Author.objects.all().delete()
                     Tag.objects.all().delete()
+                    Publisher.objects.all().delete()
 
             self.stdout.write(self.style.WARNING(
                 f"Deleted objects (total): {deleted_total:,}"
@@ -75,6 +76,10 @@ class Command(BaseCommand):
 
         author_cache = {name.casefold(): a_id for a_id, name in Author.objects.values_list("id", "name")}
         tag_cache = {name.casefold(): t_id for t_id, name in Tag.objects.values_list("id", "name")}
+        publisher_cache = {
+            name.casefold(): p_id
+            for p_id, name in Publisher.objects.values_list("id", "publisher_name")
+        } 
 
         created_books = 0
         rows_processed = 0
@@ -96,7 +101,7 @@ class Command(BaseCommand):
 
                 description = (row.get("description") or "").strip() or None
                 publication_year = row.get("publishedDate")
-                publisher = (row.get("publisher") or "").strip() or None
+                publisher_name = (row.get("publisher") or "").strip() or None 
                 cover_image = (row.get("image") or "").strip() or None
                 info_link = (row.get("infoLink") or "").strip() or None
 
@@ -106,13 +111,22 @@ class Command(BaseCommand):
                 book_id = existing_books.get(title)
 
                 if book_id is None:
+                    publisher_id = None
+                    if publisher_name:
+                        k = publisher_name.casefold()
+                        publisher_id = publisher_cache.get(k)
+                        if publisher_id is None:
+                            p, _ = Publisher.objects.get_or_create(publisher_name=publisher_name)
+                            publisher_id = p.id
+                            publisher_cache[k] = publisher_id
+
                     with transaction.atomic():
                         book = Book.objects.create(
                             title=title,
                             description=description,
                             publication_year=publication_year,
                             cover_image=cover_image,
-                            publisher=publisher,
+                            publisher_id=publisher_id,
                             info_link=info_link,
                             is_active=True,
                         )

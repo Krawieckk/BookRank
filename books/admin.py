@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Author, Tag, Book, Review, ReviewSummary, ReviewHelpfulness, Library 
+from .models import Author, Tag, Book, Review, ReviewSummary, ReviewHelpfulness, Library, Publisher
 
 # Register your models here.
 admin.site.register(Author)
@@ -9,3 +9,4 @@ admin.site.register(Review)
 admin.site.register(ReviewSummary)
 admin.site.register(ReviewHelpfulness)
 admin.site.register(Library)
+admin.site.register(Publisher)
