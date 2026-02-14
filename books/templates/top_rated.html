@@ -1,0 +1,19 @@
+{% extends 'base_with_navbar.html' %}
+
+{% block content %}
+
+<div class="w-full flex flex-col items-center justify-center mb-12 px-4 pb-8">
+  <div class="flex flex-col items-center justify-center max-w-96 lg:max-w-[600px] gap-3">
+    <h2 class="font-semibold text-lg lg:text-xl">Top rated</h2>
+    <p class="text-sm lg:text-base text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti voluptatibus quia incidunt harum illo eum rem ad, corporis, labore ipsum eius doloremque quod asperiores vero temporibus dolorem quibusdam optio iusto?</p>
+  </div>
+</div>
+
+<div class="w-full flex flex-col items-center justify-center px-5 w-full">
+    <div class="w-full max-w-[1000px]">
+        {% include '_results.html' %}   
+    </div>
+</div>
+
+
+{% endblock content %}

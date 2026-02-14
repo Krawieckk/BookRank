@@ -29,7 +29,11 @@ class Book(models.Model):
     publication_year = models.IntegerField(blank=True, null=True)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     reviews_count = models.IntegerField(default=0)
-    cover_image = models.CharField(max_length=255, blank=True, null=True)
+    cover_image = models.ImageField(
+        upload_to='covers/', 
+        blank=True,
+        default='default_book.png'
+    )
     info_link = models.CharField(max_length=300, blank=True, null=True)
     summary_generated = models.BooleanField(default=False)
     allow_summary = models.BooleanField(default=True)

@@ -7,9 +7,9 @@
       <div class="w-28 sm:w-32 md:w-36">
         {% if book.cover_image %}
           <img
-            src="{{ book.cover_image }}"
+            src="{{ book.cover_image.url }}"
             alt="Cover image: {{ book.title }}"
-            class="w-full aspect-[2/3] w-44 rounded-sm object-cover shadow"
+            class="w-full  w-44 rounded-sm object-fit shadow"
             loading="lazy"
           />
         {% else %}
@@ -21,7 +21,7 @@
     </div>
 
     <div class="w-full text-center md:text-left relative">
-      <h1 class="text-xl sm:text-2xl font-semibold text-gray-900 block max-w-[600px]">
+      <h1 class="text-xl sm:text-2xl font-semibold text-gray-900 block">
         {{ book.title }}
       </h1>
 
@@ -88,6 +88,8 @@
       {% include 'partials/to_read_button.html' %}
   </div>
 
+  {% include 'partials/moderator_panel.html' %}
+
   <div class="mt-2 md:mt-10">
     <h2 class="text-lg font-medium text-gray-700">
       Description
@@ -104,14 +106,14 @@
     </div>
   </div>
 
-  {% if book.summary_generated %}
+  {% if review_summary.summary_text %}
     <div class="mt-8 md:mt-10">
         <h2 class="text-lg font-medium text-gray-700">
           AI Generated summary <span class="text-sm">(based on 30 most helpful reviews)</span>
         </h2>
 
         <p class="mt-4 text-sm sm:text-base text-gray-800">
-          {{ book.review_summary.summary_text }}
+          {{ review_summary.summary_text }}
         </p>
 
       </div>

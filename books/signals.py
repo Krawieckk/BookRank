@@ -4,6 +4,7 @@ from django.db.models import Avg, F
 from django.db import transaction
 from .models import Review, Book, ReviewSummary
 
+
 @receiver([post_save, post_delete], sender=Review)
 def update_book_rating(sender, instance, **kwargs):
     """
@@ -30,9 +31,14 @@ def increase_review_count(sender, instance, **kwargs):
     """
     book_id = instance.book_id
 
+    print('sygnał się odpala')
+
     def update():
         Book.objects.filter(id=book_id).update(
             reviews_count = F('reviews_count') + 1
+        )
+        ReviewSummary.objects.filter(book_id=book_id).update(
+            reviews_added_count = F('reviews_added_count') + 1
         )
 
     transaction.on_commit(update)
@@ -75,7 +81,6 @@ def review_created_maybe_trigger_summary(sender, instance: Review, created: bool
     with transaction.atomic():
         rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
 
-        # +1 do liczby dodanych recenzji
         ReviewSummary.objects.filter(pk=rs.pk).update(
             reviews_added_count=F("reviews_added_count") + 1
         )
@@ -89,7 +94,6 @@ def review_created_maybe_trigger_summary(sender, instance: Review, created: bool
         if not should_generate:
             return
 
-        # ustaw is_generating=True w sposób “atomowy”, żeby uniknąć dubli
         updated = ReviewSummary.objects.filter(pk=rs.pk, is_generating=False).update(is_generating=True)
         if updated != 1:
             return

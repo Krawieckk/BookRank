@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
@@ -15,6 +16,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.urls import reverse
 from datetime import datetime
+from PIL import Image
 
 authors = {
     2099: "Agatha Christie", 
@@ -50,6 +52,9 @@ publishers = {
     88: 'Oxford University Press'
 }
 
+def is_moderator(user):
+    return user.groups.filter(name='Moderator').exists()
+
 # Create your views here.
 def home(request):
     popular_authors = authors
@@ -62,8 +67,29 @@ def home(request):
 
 def book_page(request, pk):
     book = get_object_or_404(Book, id=pk)
+    
+    # if book.summary_generated:
+    #     review_summary = get_object_or_404(ReviewSummary, book_id=pk)
+    #     summary_is_generating = review_summary.is_generating
+    # else:
+    #     review_summary = None
+    #     summary_is_generating = None
+
+    review_summary = ReviewSummary.objects.filter(book_id=pk).first()
+
+    if review_summary:
+        summary_is_generating = review_summary.is_generating
+    else:
+        summary_is_generating = None
+
+    
 
     review_form = ReviewForm()
+
+    if request.user.groups.filter(name='Moderator').exists():
+        moderator = True
+    else:
+        moderator = False
 
     if request.user.is_authenticated:
         current_user_review = Review.objects.filter(book=book, user=request.user).first()
@@ -98,7 +124,10 @@ def book_page(request, pk):
         "reviews": reviews_qs,
         "current_user_review": current_user_review,
         "review_form": review_form,
-        "added_to_library": added_to_library
+        "added_to_library": added_to_library, 
+        "moderator_logged": moderator, 
+        "review_summary": review_summary, 
+        "summary_is_generating": summary_is_generating
     }
     return render(request, "book_page.html", context)
 
@@ -196,6 +225,8 @@ def refresh_review_form(request, book_id):
 @login_required
 def mark_helpful(request, review_id):
     review = get_object_or_404(Review, id=review_id)
+    moderator = is_moderator(request.user)
+    print(moderator)
 
     _, created = ReviewHelpfulness.objects.get_or_create(user=request.user, review=review)
     if created:
@@ -203,12 +234,13 @@ def mark_helpful(request, review_id):
     
     r = _user_has_liked_check(Review.objects.filter(id=review.id), request.user).get()
 
-    return render(request, 'partials/single_review.html', {'review': r})
+    return render(request, 'partials/single_review.html', {'review': r, 'moderator_logged': moderator})
 
 @require_POST
 @login_required
 def unmark_helpful(request, review_id):
     review = get_object_or_404(Review, id=review_id)
+    moderator = is_moderator(request.user)
 
     deleted, _ = ReviewHelpfulness.objects.filter(user=request.user, review=review).delete()
     if deleted:
@@ -216,7 +248,7 @@ def unmark_helpful(request, review_id):
 
     r = _user_has_liked_check(Review.objects.filter(id=review.id), request.user).get()
 
-    return render(request, 'partials/single_review.html', {'review': r})
+    return render(request, 'partials/single_review.html', {'review': r, 'moderator_logged': moderator})
 
 @require_POST
 @login_required
@@ -273,15 +305,15 @@ def test_generate_summary_once(request, book_id):
     with transaction.atomic():
         rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
 
-        if rs.is_generating or rs.summary_text:
+        if rs.is_generating:
             return redirect("home")
 
         rs.is_generating = True
         rs.save(update_fields=["is_generating"])
 
-        generate_review_summary_for_book.delay(book.id)
+        transaction.on_commit(lambda: generate_review_summary_for_book.delay(book.id))
 
-    return redirect("home")
+    return redirect("book_page", pk=book_id)
 
 @login_required
 def profile(request):
@@ -377,10 +409,10 @@ def explore(request):
     selected_tags_qs = Tag.objects.filter(id__in=selected_tags)
     selected_publishers_qs = Publisher.objects.filter(id__in=selected_publishers)
 
-    base_authors_qs = Author.objects.filter(id__in=list(authors.keys()))
+    base_authors_qs = Author.objects.filter(name__in=list(authors.values()))
     authors_qs = (base_authors_qs | selected_authors_qs).distinct().order_by('name')
 
-    base_tags_qs = Tag.objects.filter(id__in=list(tags.keys()))
+    base_tags_qs = Tag.objects.filter(name__in=list(tags.values()))
     tags_qs = (base_tags_qs | selected_tags_qs).distinct().order_by('name')
 
     base_publishers_qs = Publisher.objects.filter(id__in=list(publishers.keys()))
@@ -548,3 +580,101 @@ def tags_search_suggestions(request):
 
 
     return JsonResponse({"results": results})
+
+def top_rated(request):
+    qs = (
+        Book.objects
+        .prefetch_related("authors", "tags")
+        .filter(is_active=True, reviews_count__gte=50)
+    )[:100]
+
+    paginator = Paginator(qs, 12)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    context = {
+        'page_obj': page_obj
+    }
+
+    return render(request, 'top_rated.html', context)
+
+@staff_member_required
+def delete_summary(request, book_id):
+    o = get_object_or_404(ReviewSummary, book_id=book_id)
+    o.delete()
+
+    book = Book.objects.select_for_update().get(id=book_id)
+    book.summary_generated = False
+    book.save(update_fields=["summary_generated"])
+
+    return redirect('book_page', pk=book_id)
+
+@staff_member_required
+def delete_and_block_summary(request, book_id):
+    o = get_object_or_404(ReviewSummary, book_id=book_id)
+    o.delete()
+
+    book = Book.objects.select_for_update().get(id=book_id)
+    book.allow_summary = False
+    book.summary_generated = False
+    book.save(update_fields=["allow_summary", "summary_generated"])
+
+    return redirect('book_page', pk=book_id)
+
+@staff_member_required
+def block_summary(request, book_id):
+    book = Book.objects.select_for_update().get(id=book_id)
+    book.allow_summary = False
+    book.save(update_fields=['allow_summary'])
+
+    return redirect('book_page', pk=book_id)
+
+def allow_summary(request, book_id):
+    book = Book.objects.select_for_update().get(id=book_id)
+    book.allow_summary = True
+    book.save(update_fields=['allow_summary'])
+
+    return redirect('book_page', pk=book_id)
+
+
+@staff_member_required 
+@require_POST
+def change_cover_image(request, book_id):
+    ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
+    ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"]
+
+    book = get_object_or_404(Book, id=book_id)
+    file = request.FILES.get("cover")
+
+    if not file:
+        return redirect("book_page", book.id)
+
+    if file.content_type not in ALLOWED_TYPES:
+        messages.error(request, "Only JPG, PNG and WEBP files are allowed.")
+        return redirect("book_page", book.id)
+
+    
+    ext = os.path.splitext(file.name)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        messages.error(request, "Invalid file extension.")
+        return redirect("book_page", book.id)
+
+    try:
+        img = Image.open(file)
+        img.verify()
+    except Exception:
+        messages.error(request, "Uploaded file is not a valid image.")
+        return redirect("book_page", book.id)
+
+    book.cover_image = file
+    book.save(update_fields=["cover_image"])
+
+    messages.success(request, "Cover image updated successfully.")
+    return redirect("book_page", book.id)
+
+@staff_member_required
+def moderator_delete_review(request, review_id):
+    with transaction.atomic():
+        review = Review.objects.select_for_update().get(id=review_id)
+        review.delete()
+
+    return render(request, 'partials/all_user_reviews.html')

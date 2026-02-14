@@ -1,15 +1,30 @@
 <div class="w-full flex flex-col items-center justify-center px-6">
 
-  <div class="w-full flex flex-col lg:flex-row gap-10 mt-12">
+  <div class="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 mt-12">
+    <div id="filtersOverlay" class="fixed inset-0 z-40 hidden bg-black/40 lg:hidden"></div>
+    <aside id="filtersAside" class=" w-full flex flex-col sm:flex-row
 
-    <aside class="w-full flex flex-col sm:flex-row px-4 lg:max-w-72">
-      <div class="sticky top-6 w-full">
+    fixed right-0 top-0 z-50 h-full w-[min(95vw,420px)] bg-white shadow-xl
+    translate-x-full transition-transform duration-300 ease-in-out
+
+    lg:static lg:z-auto lg:max-w-72 lg:shadow-none
+    lg:translate-x-0">
+      <div class="w-full h-full overflow-y-auto lg:sticky lg:top-6 lg:h-auto lg:overflow-visible px-12 lg:px-0 pt-12 lg:pt-0">
         <div class="mb-6">
           <div class="flex items-baseline justify-between">
             <h2 class="text-lg font-semibold text-slate-900">Filters</h2>
-            <a href="{% url 'explore' %}" class="text-sm text-slate-500 hover:text-slate-700">
+            <a href="{% url 'explore' %}" class="text-sm text-slate-500 hover:text-slate-700 hidden lg:block border-b-1 border-slate-500 pb-1">
               Clear all filters
             </a>
+
+            <button
+              type="button"
+              id="filtersClose"
+              class="text-sm border-b border-slate-300 lg:hidden bg-[#2e4052] text-white px-4 py-2"
+            >
+              Close filters
+            </button>
+
           </div>
         </div>
 
@@ -103,7 +118,7 @@
                   <div class=" flex justify-between items-center px-2">
 
                       <div class="flex flex-col w-[40%]">
-                        <label for="min_published_year" class="flex cursor-pointer items-center gap-3 text-xs">From</label>
+                        <label for="min_published_year" class="flex cursor-pointer items-center gap-3 text-xs pb-2">From</label>
                           <input
                             id="min_published_year"
                             type="number"
@@ -112,12 +127,12 @@
                             value="{% if min_published_year %}{{min_published_year}}{% else %}{None}{% endif %}"
                             placeholder="-"
                             name="min_published_year"
-                            class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border"
+                            class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border p-2"
                           >
                         </div>
                       
                       <div class="flex flex-col w-[40%]">
-                        <label for="max_published_year" class="flex cursor-pointer items-center gap-3 text-xs">To</label>
+                        <label for="max_published_year" class="flex cursor-pointer items-center gap-3 text-xs pb-2">To</label>
                           <input
                             id="max_published_year"
                             type="number"
@@ -126,7 +141,7 @@
                             value="{% if max_published_year %}{{max_published_year}}{% else %}{{current_year}}{% endif %}"
                             placeholder="-"
                             name="max_published_year"
-                            class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border"
+                            class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border p-2"
                           >
                         </div>
                       
@@ -174,7 +189,6 @@
 
               <div class="relative w-full text-sm mt-3">
                   <div class=" flex justify-between items-center px-2">
-
                       <div class="flex flex-col w-[40%]">
                         <label for="summary_generated" hidden class="flex cursor-pointer items-center gap-3 text-xs">AI Summary generated</label>
                           <input
@@ -185,7 +199,6 @@
                             class="h-6 w-full rounded border-slate-300 text-slate-900 focus:ring-slate-900 border"
                           >
                         </div>
-                      
                 </div>
               </div>
             </section>
@@ -194,6 +207,24 @@
       </div>
     </aside>
 
+    <button
+        type="button"
+        id="filtersOpen"
+        class="lg:hidden w-36 flex justify-center block items-center gap-2 border-b-1 border-slate-900 px-3 py-2 text-sm bg-[#2e4052] text-white"
+        aria-controls="filtersAside"
+        aria-expanded="false"
+      >
+        Choose filters 
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" 
+                stroke="currentColor" 
+                stroke-width="1.8" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+
     <main class="col-span-12 md:col-span-8 lg:col-span-9 w-full">
         <div id="exploreMain">
             {% include 'partials/explore_main.html' %}
@@ -201,3 +232,58 @@
     </main>
   </div>
 </div>
+
+<script>
+  (function () {
+    const openBtn = document.getElementById("filtersOpen");
+    const closeBtn = document.getElementById("filtersClose");
+    const aside = document.getElementById("filtersAside");
+    const overlay = document.getElementById("filtersOverlay");
+    if (!openBtn || !aside || !overlay) return;
+
+    const isMobile = () => window.matchMedia("(max-width: 1023px)").matches;
+
+    function openAside() {
+      if (!isMobile()) return;
+      overlay.classList.remove("hidden");
+      aside.classList.remove("translate-x-full");
+      aside.classList.add("translate-x-0");
+      openBtn.setAttribute("aria-expanded", "true");
+      document.body.classList.add("overflow-hidden");
+    }
+
+    function closeAside() {
+      if (!isMobile()) return;
+      aside.classList.add("translate-x-full");
+      aside.classList.remove("translate-x-0");
+      overlay.classList.add("hidden");
+      openBtn.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    openBtn.addEventListener("click", () => {
+      const expanded = openBtn.getAttribute("aria-expanded") === "true";
+      expanded ? closeAside() : openAside();
+    });
+
+    closeBtn?.addEventListener("click", closeAside);
+    overlay.addEventListener("click", closeAside);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && openBtn.getAttribute("aria-expanded") === "true") {
+        closeAside();
+      }
+    });
+
+    // Po przejściu na >= lg: sprzątamy overlay / scroll-lock
+    window.addEventListener("resize", () => {
+      if (!isMobile()) {
+        overlay.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+        openBtn.setAttribute("aria-expanded", "false");
+        // nie musimy ruszać aside — lg:translate-x-0 i lg:static zrobi swoje
+      }
+    });
+
+  })();
+</script>

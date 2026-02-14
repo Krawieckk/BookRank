@@ -100,20 +100,126 @@ class CustomPasswordUpdateForm(PasswordChangeForm):
         self.fields['new_password1'].widget.attrs['autocomplete'] = 'new-password'
         self.fields['new_password2'].widget.attrs['autocomplete'] = 'new-password'
         
+from io import BytesIO
+import os
+
+from django import forms
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from PIL import Image, ImageOps
+
+from .models import Profile
+
+
 class ProfilePictureChangeForm(forms.ModelForm):
+    MAX_SIZE = 3 * 1024 * 1024  # 3MB
+    AVATAR_SIZE = 300
+
     class Meta:
         model = Profile
         fields = ['profile_picture']
         widgets = {
-            "profile_picture": forms.FileInput(attrs={"class": "text-sm py-1 px-2 border"}),
+            "profile_picture": forms.FileInput(
+                attrs={
+                    "class": "text-sm py-1 px-2 border",
+                    "accept": "image/jpeg, image/png"
+                }
+            ),
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields['profile_picture'].validators.append(
             FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
         )
-        self.fields['profile_picture'].widget.attrs.update({
-            'accept': 'image/jpeg, image/png'
-        })
 
-    
+    def clean_profile_picture(self):
+        file = self.cleaned_data.get("profile_picture")
+
+        if not file:
+            return file
+
+        # 1️⃣ rozmiar pliku
+        if file.size > self.MAX_SIZE:
+            raise ValidationError("File is too large (max 3MB).")
+
+        # 2️⃣ czy to obraz
+        try:
+            img = Image.open(file)
+            img.verify()
+        except Exception:
+            raise ValidationError("Uploaded file is not a valid image.")
+
+        try:
+            file.seek(0)
+        except Exception:
+            pass
+
+        return file
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        file = self.cleaned_data.get("profile_picture")
+
+        if file:
+            img = Image.open(file)
+
+            # popraw orientację z EXIF (zdjęcia z telefonu)
+            img = ImageOps.exif_transpose(img)
+
+            # --- CENTER CROP DO KWADRATU ---
+            width, height = img.size
+            min_side = min(width, height)
+
+            left = (width - min_side) / 2
+            top = (height - min_side) / 2
+            right = (width + min_side) / 2
+            bottom = (height + min_side) / 2
+
+            img = img.crop((left, top, right, bottom))
+
+            # --- RESIZE 300x300 ---
+            img = img.resize((self.AVATAR_SIZE, self.AVATAR_SIZE), Image.LANCZOS)
+
+            # --- zachowaj format ---
+            fmt = (img.format or "").upper()
+            if fmt == "JPG":
+                fmt = "JPEG"
+            if fmt not in {"JPEG", "PNG"}:
+                fmt = "JPEG"
+
+            if fmt == "JPEG" and img.mode in ("RGBA", "LA"):
+                img = img.convert("RGB")
+
+            buffer = BytesIO()
+
+            save_kwargs = {}
+            if fmt == "JPEG":
+                save_kwargs = {"quality": 90, "optimize": True}
+            elif fmt == "PNG":
+                save_kwargs = {"optimize": True}
+
+            img.save(buffer, format=fmt, **save_kwargs)
+            buffer.seek(0)
+
+            ext_map = {"JPEG": ".jpg", "PNG": ".png"}
+            base = os.path.splitext(file.name)[0]
+            new_name = f"{base}{ext_map[fmt]}"
+
+            resized_file = InMemoryUploadedFile(
+                file=buffer,
+                field_name="profile_picture",
+                name=new_name,
+                content_type=file.content_type,
+                size=buffer.getbuffer().nbytes,
+                charset=None
+            )
+
+            instance.profile_picture = resized_file
+
+        if commit:
+            instance.save()
+
+        return instance

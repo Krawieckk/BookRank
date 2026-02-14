@@ -8,7 +8,7 @@
       <div class="w-28 sm:w-32 md:w-36">
         {% if book.cover_image %}
           <img
-            src="{{ book.cover_image }}"
+            src="{{ book.cover_image.url }}"
             alt="Cover image: {{ book.title }}"
             class="w-full aspect-[2/3] w-44 rounded-sm object-cover shadow"
             loading="lazy"
@@ -68,9 +68,10 @@
             {% endif %}
           </div>
 
-          {% for review in page_obj %}
-            {% include 'partials/single_review.html' %}
-          {% endfor %}
+          <div class="flex flex-col gap-8 md:gap-12" id="all-user-reviews">
+            {% include 'partials/all_user_reviews.html' %}
+          </div>
+          
         </ul>
       </div>
 

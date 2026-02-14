@@ -102,7 +102,6 @@ class Command(BaseCommand):
                 description = (row.get("description") or "").strip() or None
                 publication_year = row.get("publishedDate")
                 publisher_name = (row.get("publisher") or "").strip() or None 
-                cover_image = (row.get("image") or "").strip() or None
                 info_link = (row.get("infoLink") or "").strip() or None
 
                 authors_list = parse_listish(row.get("authors"))
@@ -125,7 +124,6 @@ class Command(BaseCommand):
                             title=title,
                             description=description,
                             publication_year=publication_year,
-                            cover_image=cover_image,
                             publisher_id=publisher_id,
                             info_link=info_link,
                             is_active=True,
