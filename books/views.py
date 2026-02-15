@@ -1,4 +1,3 @@
-import os
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Q
@@ -6,59 +5,85 @@ from .models import Book, Review, ReviewHelpfulness, Library, ReviewSummary, Aut
 from .forms import ReviewForm
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from django.db.models import Exists, OuterRef, F
+from django.db.models import Exists, OuterRef, F, Avg, Count, Sum
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .tasks import generate_review_summary_for_book
 from django.db import transaction
-from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.urls import reverse
+from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime
-from PIL import Image
+from django.core.cache import cache
 
-authors = {
-    2099: "Agatha Christie", 
-    3889: "Nora Roberts", 
-    1673: "Georgette Heyer", 
-    2744: "William Shakespeare", 
-    751: "John Steinbeck", 
-    2650: "Rex Stout", 
-    1934: "Carolyn Keene", 
-    1719: "C. S. Lewis", 
-    3132: "Janette Oke", 
-    3630: "Danielle Steel", 
+
+def _popular_authors():
+    return list(
+        Author.objects.annotate(
+            average_book_rating=Avg('book_authors__average_rating'),
+            total_reviews=Sum('book_authors__reviews_count'),
+            books_count=Count('book_authors')
+        )
+        .filter(total_reviews__gt=5, books_count__gte=3)
+        .values('id', 'name')
+        .order_by('-books_count', '-average_book_rating', '-total_reviews')[:20]
+    )
+
+def _popular_tags():
+    return list(
+        Tag.objects.annotate(book_count=Count('book_tags'))
+        .values('id', 'name')
+        .order_by('-book_count')[:20]
+    )
+
+def _popular_publishers():
+    return list(
+        Publisher.objects.annotate(
+            book_count=Count('book_publisher')
+        )
+        .values('id', 'publisher_name')
+        .order_by('-book_count')[:20]
+    )
+
+def _top_rated():
+    return list(
+        Book.objects
+        .filter(average_rating__gte=4.5, reviews_count__gte=100)
+        .values('id')
+        .order_by('-reviews_count', '-average_rating')
+        [:100]
+    )
+
+CACHE_SPECS = {
+    "home:popular_authors:v1": (_popular_authors, 60 * 100),
+    "home:popular_tags:v1": (_popular_tags, 60 * 100),
+    "explore:popular_publishers:v1": (_popular_publishers, 60*100), 
+    "home:top_rated:v1": (_top_rated, 60*100)
 }
 
-tags = {
-    4: 'Fiction', 
-    7: 'Religion', 
-    17: 'History', 
-    12: 'Juvenile Fiction', 
-    155: 'Autobiography', 
-}
+def get_cached_results(key, default=None):
+    val = cache.get(key)
+    if val is not None:
+        return val
 
-publishers = {
-    69: 'Simon and Schuster', 
-    33: 'Penguin', 
-    18: 'Routledge',
-    64: 'John Wiley & Sons',
-    95: 'Harper Collins',
-    13: 'Cambridge University Press',
-    32: 'Courier Corporation',
-    47: 'Macmillan',
-    27: 'Vintage',
-    88: 'Oxford University Press'
-}
+    spec = CACHE_SPECS.get(key)
+    if not spec:
+        return []
 
-def is_moderator(user):
-    return user.groups.filter(name='Moderator').exists()
+    builder, timeout = spec
+    val = builder()
+    cache.set(key, val, timeout=timeout)
+    return val
+
 
 # Create your views here.
 def home(request):
-    popular_authors = authors
-    popular_tags = tags
+    authors_key = 'home:popular_authors:v1'
+    tags_key = 'home:popular_tags:v1'
+
+    popular_authors = get_cached_results(authors_key)
+    popular_tags = get_cached_results(tags_key)
 
     user = request.user
     return render(request, 'home.html', context={'user': user, 
@@ -67,13 +92,6 @@ def home(request):
 
 def book_page(request, pk):
     book = get_object_or_404(Book, id=pk)
-    
-    # if book.summary_generated:
-    #     review_summary = get_object_or_404(ReviewSummary, book_id=pk)
-    #     summary_is_generating = review_summary.is_generating
-    # else:
-    #     review_summary = None
-    #     summary_is_generating = None
 
     review_summary = ReviewSummary.objects.filter(book_id=pk).first()
 
@@ -81,8 +99,6 @@ def book_page(request, pk):
         summary_is_generating = review_summary.is_generating
     else:
         summary_is_generating = None
-
-    
 
     review_form = ReviewForm()
 
@@ -298,23 +314,6 @@ def book_search_suggestions(request):
 
     return JsonResponse({"results": results})
 
-@staff_member_required
-def test_generate_summary_once(request, book_id):
-    book = get_object_or_404(Book, pk=book_id)
-
-    with transaction.atomic():
-        rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
-
-        if rs.is_generating:
-            return redirect("home")
-
-        rs.is_generating = True
-        rs.save(update_fields=["is_generating"])
-
-        transaction.on_commit(lambda: generate_review_summary_for_book.delay(book.id))
-
-    return redirect("book_page", pk=book_id)
-
 @login_required
 def profile(request):
     user = request.user
@@ -399,23 +398,30 @@ def explore(request):
     selected_authors = request.GET.getlist("authors")
     selected_tags = request.GET.getlist("tags")
     selected_publishers = request.GET.getlist("publishers")
-
     min_published_year = request.GET.get("min_published_year")
     max_published_year = request.GET.get("max_published_year")    
-
     summary_generated = request.GET.get('summary_generated')
+
+    # filters cache
+    authors_key = 'home:popular_authors:v1'
+    tags_key = 'home:popular_tags:v1'
+    publishers_key = 'explore:popular_publishers:v1'
+
+    popular_authors = get_cached_results(authors_key)
+    popular_tags = get_cached_results(tags_key)
+    popular_publishers = get_cached_results(publishers_key)
 
     selected_authors_qs = Author.objects.filter(id__in=selected_authors)
     selected_tags_qs = Tag.objects.filter(id__in=selected_tags)
     selected_publishers_qs = Publisher.objects.filter(id__in=selected_publishers)
 
-    base_authors_qs = Author.objects.filter(name__in=list(authors.values()))
-    authors_qs = (base_authors_qs | selected_authors_qs).distinct().order_by('name')
+    base_authors_qs = Author.objects.filter(id__in=[x['id'] for x in popular_authors])
+    authors_qs = (base_authors_qs | selected_authors_qs).distinct()
 
-    base_tags_qs = Tag.objects.filter(name__in=list(tags.values()))
-    tags_qs = (base_tags_qs | selected_tags_qs).distinct().order_by('name')
+    base_tags_qs = Tag.objects.filter(id__in=[x['id'] for x in popular_tags])
+    tags_qs = (base_tags_qs | selected_tags_qs).distinct()
 
-    base_publishers_qs = Publisher.objects.filter(id__in=list(publishers.keys()))
+    base_publishers_qs = Publisher.objects.filter(id__in=[x['id'] for x in popular_publishers])
     publishers_qs = (base_publishers_qs | selected_publishers_qs).distinct().order_by('publisher_name')
 
     selcted_authors_map = {
@@ -460,6 +466,9 @@ def explore(request):
     paginator = Paginator(qs, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
 
+    params = request.GET.copy()
+    params.pop("page", None)
+    querystring = params.urlencode()
 
     context = {
         "page_obj": page_obj,
@@ -477,7 +486,8 @@ def explore(request):
         "min_published_year": min_published_year, 
         "max_published_year": max_published_year, 
         "summary_generated_filter": summary_generated, 
-        "current_year": datetime.now().year
+        "current_year": datetime.now().year, 
+        "querystring": querystring
     }
 
     if request.headers.get("HX-Request") == "true":
@@ -489,40 +499,6 @@ def explore(request):
 
     return render(request, "explore.html", context)
 
-
-AUTHORS_LIMIT = 20
-TAGS_LIMIT = 20
-
-def filter_authors(request):
-    q = request.GET.get("author_search_ui", "").strip()
-    selected_authors = request.GET.getlist("authors")
-
-    qs = Author.objects.order_by("name")
-    if q:
-        qs = qs.filter(name__icontains=q)
-
-    authors = qs[:AUTHORS_LIMIT]
-
-    return render(request, "_filter_authors_list.html", {
-        "authors": authors,
-        "selected_authors": selected_authors,
-    })
-
-
-def filter_tags(request):
-    q = request.GET.get("tag_q", "").strip()
-    selected_tags = request.GET.getlist("tags")
-
-    qs = Tag.objects.order_by("name")
-    if q:
-        qs = qs.filter(name__icontains=q)
-
-    tags = qs[:TAGS_LIMIT]
-
-    return render(request, "_filter_tags_list.html", {
-        "tags": tags,
-        "selected_tags": selected_tags,
-    })
 
 def authors_search_suggestions(request):
     q = (request.GET.get("q") or "").strip()
@@ -581,12 +557,40 @@ def tags_search_suggestions(request):
 
     return JsonResponse({"results": results})
 
+def publishers_search_suggestions(request):
+    q = (request.GET.get("q") or "").strip()
+
+    if len(q) < 2:
+        return JsonResponse({"results": []})
+
+    authors = (
+        Publisher.objects
+        .filter(
+            Q(publisher_name__icontains=q)
+        )
+        .distinct()
+        .only("id", "publisher_name")
+        .order_by("publisher_name")[:5]
+    )
+
+    base_url = reverse("explore")
+
+    results = []
+    for a in authors:
+        results.append({
+            "id": a.id,
+            "publisher_name": a.publisher_name,
+            "url": f"{base_url}?publishers={a.id}",
+        })
+
+
+    return JsonResponse({"results": results})
+
 def top_rated(request):
-    qs = (
-        Book.objects
-        .prefetch_related("authors", "tags")
-        .filter(is_active=True, reviews_count__gte=50)
-    )[:100]
+    top_rated_key = 'home:top_rated:v1'
+    top_rated_books_list = get_cached_results(top_rated_key)
+
+    qs = Book.objects.filter(id__in=[x['id'] for x in top_rated_books_list])
 
     paginator = Paginator(qs, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -597,8 +601,43 @@ def top_rated(request):
 
     return render(request, 'top_rated.html', context)
 
-@staff_member_required
-def delete_summary(request, book_id):
+def best_authors(request):
+    authors_key = 'home:popular_authors:v1'
+    popular_authors = get_cached_results(authors_key)
+
+    qs = Book.objects.filter(authors__in=[x['id'] for x in popular_authors])
+
+    paginator = Paginator(qs, 12)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    context = {
+        'page_obj': page_obj
+    }
+
+    return render(request, 'best_authors.html', context)
+
+def is_moderator(user):
+    return user.groups.filter(name='Moderator').exists()
+
+@user_passes_test(is_moderator)
+def generate_summary(request, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+
+    with transaction.atomic():
+        rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
+
+        if rs.is_generating:
+            return redirect("home")
+
+        rs.is_generating = True
+        rs.save(update_fields=["is_generating"])
+
+        transaction.on_commit(lambda: generate_review_summary_for_book.delay(book.id))
+
+    return redirect("book_page", pk=book_id)
+
+@user_passes_test(is_moderator)
+def moderator_delete_summary(request, book_id):
     o = get_object_or_404(ReviewSummary, book_id=book_id)
     o.delete()
 
@@ -608,8 +647,8 @@ def delete_summary(request, book_id):
 
     return redirect('book_page', pk=book_id)
 
-@staff_member_required
-def delete_and_block_summary(request, book_id):
+@user_passes_test(is_moderator)
+def moderator_delete_and_block_summary(request, book_id):
     o = get_object_or_404(ReviewSummary, book_id=book_id)
     o.delete()
 
@@ -620,15 +659,15 @@ def delete_and_block_summary(request, book_id):
 
     return redirect('book_page', pk=book_id)
 
-@staff_member_required
-def block_summary(request, book_id):
+@user_passes_test(is_moderator)
+def moderator_block_summary(request, book_id):
     book = Book.objects.select_for_update().get(id=book_id)
     book.allow_summary = False
     book.save(update_fields=['allow_summary'])
 
     return redirect('book_page', pk=book_id)
 
-def allow_summary(request, book_id):
+def moderator_allow_summary(request, book_id):
     book = Book.objects.select_for_update().get(id=book_id)
     book.allow_summary = True
     book.save(update_fields=['allow_summary'])
@@ -636,42 +675,7 @@ def allow_summary(request, book_id):
     return redirect('book_page', pk=book_id)
 
 
-@staff_member_required 
-@require_POST
-def change_cover_image(request, book_id):
-    ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
-    ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"]
-
-    book = get_object_or_404(Book, id=book_id)
-    file = request.FILES.get("cover")
-
-    if not file:
-        return redirect("book_page", book.id)
-
-    if file.content_type not in ALLOWED_TYPES:
-        messages.error(request, "Only JPG, PNG and WEBP files are allowed.")
-        return redirect("book_page", book.id)
-
-    
-    ext = os.path.splitext(file.name)[1].lower()
-    if ext not in ALLOWED_EXTENSIONS:
-        messages.error(request, "Invalid file extension.")
-        return redirect("book_page", book.id)
-
-    try:
-        img = Image.open(file)
-        img.verify()
-    except Exception:
-        messages.error(request, "Uploaded file is not a valid image.")
-        return redirect("book_page", book.id)
-
-    book.cover_image = file
-    book.save(update_fields=["cover_image"])
-
-    messages.success(request, "Cover image updated successfully.")
-    return redirect("book_page", book.id)
-
-@staff_member_required
+@user_passes_test(is_moderator)
 def moderator_delete_review(request, review_id):
     with transaction.atomic():
         review = Review.objects.select_for_update().get(id=review_id)

@@ -33,7 +33,7 @@
               id="filtersForm"
               class="space-y-5 w-full "
               hx-get="{% url 'explore' %}"
-              hx-target="#exploreSection"
+              hx-target="#exploreMain"
               hx-push-url="true"
               hx-trigger="change delay:150ms, submit">
           <input type="hidden" name="sort" value="{{ sort }}"/>
@@ -156,6 +156,7 @@
               <div class="relative w-full text-sm mt-3">
                 <input
                 id="publishers-search-input"
+                data-endpoint="{% url 'publishers_search_suggestions' %}"
                 type="text"
                 autocomplete="off"
                 placeholder="Search..."

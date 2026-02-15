@@ -1,5 +1,5 @@
-from django.urls import path, include
-from .views import home, book_search_suggestions, book_page, mark_helpful, unmark_helpful, add_review, add_to_read, remove_to_read, test_generate_summary_once, all_reviews, profile, delete_your_review, refresh_review_form, library, update_library_status, delete_from_library, explore, filter_authors, filter_tags, authors_search_suggestions, tags_search_suggestions, top_rated, delete_summary, delete_and_block_summary, block_summary, allow_summary, change_cover_image, moderator_delete_review
+from django.urls import path
+from .views import home, book_search_suggestions, book_page, mark_helpful, unmark_helpful, add_review, add_to_read, remove_to_read, generate_summary, all_reviews, profile, delete_your_review, refresh_review_form, library, update_library_status, delete_from_library, explore, authors_search_suggestions, tags_search_suggestions, top_rated, moderator_delete_summary, moderator_delete_and_block_summary, moderator_block_summary, moderator_allow_summary, moderator_delete_review, best_authors, publishers_search_suggestions
 
 urlpatterns = [
     path('', home, name='home'), 
@@ -14,12 +14,13 @@ urlpatterns = [
     path("search/suggest/", book_search_suggestions, name="book_search_suggestions"),
     path("authors/search/suggest", authors_search_suggestions, name="authors_search_suggestions"),
     path("tags/search/suggest", tags_search_suggestions, name="tags_search_suggestions"),
-    path("test-generate-summary/<int:book_id>/", test_generate_summary_once, name='test_generate_summary_once'),
-    path("delete-summary/<int:book_id>/", delete_summary, name='delete_summary'),
-    path("delete-and-block-summary/<int:book_id>/", delete_and_block_summary, name='delete_and_block_summary'),
-    path("block-summary/<int:book_id>/", block_summary, name='block_summary'),
-    path("allow-summary/<int:book_id>/", allow_summary, name='allow_summary'),
-    path("change-cover/<int:book_id>/", change_cover_image, name='change_cover_image'),
+    path("publishers/search/suggest", publishers_search_suggestions, name="publishers_search_suggestions"),
+
+    path("test-generate-summary/<int:book_id>/", generate_summary, name='generate_summary'),
+    path("delete-summary/<int:book_id>/", moderator_delete_summary, name='moderator_delete_summary'),
+    path("delete-and-block-summary/<int:book_id>/", moderator_delete_and_block_summary, name='moderator_delete_and_block_summary'),
+    path("block-summary/<int:book_id>/", moderator_block_summary, name='moderator_block_summary'),
+    path("allow-summary/<int:book_id>/", moderator_allow_summary, name='moderator_allow_summary'),
     path("moderator-delete-review/<int:review_id>/", moderator_delete_review, name='moderator_delete_review'),
 
 
@@ -31,9 +32,7 @@ urlpatterns = [
     path("review/<int:book_id>/refresh_review_form", refresh_review_form, name='refresh_review_form'), 
 
     path('explore/', explore, name='explore'), 
-    # HTMX: wyszukiwarka w sidebarze
-    path("explore/filters/authors/", filter_authors, name="filter_authors"),
-    path("explore/filters/tags/", filter_tags, name="filter_tags"),
 
-    path('top_rated/', top_rated, name='top_rated')
+    path('top-rated/', top_rated, name='top_rated'),
+    path('best-authors/', best_authors, name='best_authors'),
 ]

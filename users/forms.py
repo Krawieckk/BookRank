@@ -1,13 +1,15 @@
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, PasswordChangeForm
 from django import forms
 from django.contrib.auth import get_user_model
-
-from django.core.mail import EmailMultiAlternatives
 from django.template import loader
-from django.utils.html import strip_tags
 from .tasks import send_email_task
 from .models import Profile
 from django.core.validators import FileExtensionValidator
+from PIL import Image, ImageOps
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from io import BytesIO
+import os
 
 class RegisterForm(UserCreationForm):
     class Meta:
@@ -100,20 +102,8 @@ class CustomPasswordUpdateForm(PasswordChangeForm):
         self.fields['new_password1'].widget.attrs['autocomplete'] = 'new-password'
         self.fields['new_password2'].widget.attrs['autocomplete'] = 'new-password'
         
-from io import BytesIO
-import os
-
-from django import forms
-from django.core.validators import FileExtensionValidator
-from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from PIL import Image, ImageOps
-
-from .models import Profile
-
-
 class ProfilePictureChangeForm(forms.ModelForm):
-    MAX_SIZE = 3 * 1024 * 1024  # 3MB
+    MAX_SIZE = 3 * 1024 * 1024
     AVATAR_SIZE = 300
 
     class Meta:
@@ -140,12 +130,10 @@ class ProfilePictureChangeForm(forms.ModelForm):
 
         if not file:
             return file
-
-        # 1️⃣ rozmiar pliku
+        
         if file.size > self.MAX_SIZE:
             raise ValidationError("File is too large (max 3MB).")
 
-        # 2️⃣ czy to obraz
         try:
             img = Image.open(file)
             img.verify()
@@ -166,10 +154,8 @@ class ProfilePictureChangeForm(forms.ModelForm):
         if file:
             img = Image.open(file)
 
-            # popraw orientację z EXIF (zdjęcia z telefonu)
             img = ImageOps.exif_transpose(img)
 
-            # --- CENTER CROP DO KWADRATU ---
             width, height = img.size
             min_side = min(width, height)
 
@@ -179,11 +165,8 @@ class ProfilePictureChangeForm(forms.ModelForm):
             bottom = (height + min_side) / 2
 
             img = img.crop((left, top, right, bottom))
-
-            # --- RESIZE 300x300 ---
             img = img.resize((self.AVATAR_SIZE, self.AVATAR_SIZE), Image.LANCZOS)
 
-            # --- zachowaj format ---
             fmt = (img.format or "").upper()
             if fmt == "JPG":
                 fmt = "JPEG"

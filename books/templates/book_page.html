@@ -4,12 +4,12 @@
 <section class="mx-auto max-w-[1000px] px-4 sm:px-6 lg:px-8">
   <div class="flex flex-col items-center gap-8 md:flex-row md:items-center">
     <div class="shrink-0">
-      <div class="w-28 sm:w-32 md:w-36">
+      <div class="w-30 h-44 md:w-38 md:h-56  shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50">
         {% if book.cover_image %}
           <img
             src="{{ book.cover_image.url }}"
             alt="Cover image: {{ book.title }}"
-            class="w-full  w-44 rounded-sm object-fit shadow"
+            class="h-full w-full object-fit loading"
             loading="lazy"
           />
         {% else %}

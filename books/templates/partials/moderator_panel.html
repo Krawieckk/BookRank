@@ -12,54 +12,34 @@
     {% else %}
     <div class="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 py-3 text-xs text-black px-2 text-center font-semibold truncate border-b-1 border-[#e67067]">
         {% if book.summary_generated %}
-            <a href="{% url 'delete_summary' book.id %}"
+            <a href="{% url 'moderator_delete_summary' book.id %}"
                 class="border-1  px-1 py-1 md:py-2 bg-[#dc3545] text-white">Delete summary</a>
-            <a href="{% url 'delete_and_block_summary' book.id %}"
+            <a href="{% url 'moderator_delete_and_block_summary' book.id %}"
             class="border-1  px-1 py-1 md:py-2 bg-[#dc3545] text-white">Delete and block summary</a>
         {% endif %}
 
         {% if not summary_is_generating %}
             {% if book.reviews_count >= 30 and book.allow_summary and not book.summary_generated %}
-                <a href="{% url 'test_generate_summary_once' book.id %}"
+                <a href="{% url 'generate_summary' book.id %}"
                     class="border-1  px-1 py-1 md:py-2 bg-[#007bff] text-white">Generate summary</a>
             {% endif %}
 
             {% if book.reviews_count >= 30 and book.allow_summary and book.summary_generated %}
-            <a href="{% url 'test_generate_summary_once' book.id %}" 
+            <a href="{% url 'generate_summary' book.id %}" 
                 class="border-1  px-1 py-1 md:py-2 bg-[#007bff] text-white">Generate new summary</a>
             {% endif %}
         {% endif %}
 
 
         {% if book.allow_summary %}
-        <a href="{% url 'block_summary' book.id %}"
+        <a href="{% url 'moderator_block_summary' book.id %}"
            class="border-1  px-1 py-1 md:py-2 bg-[#6c757d] text-white">Block summary</a>
         {% else %}
-        <a href="{% url 'allow_summary' book.id %}"
+        <a href="{% url 'moderator_allow_summary' book.id %}"
            class="border-1  px-1 py-1 md:py-2 bg-[#6c757d] text-white">Allow summary</a>
         {% endif %}
     </div>
     {% endif %}
-    <form 
-        method="post"
-        action="{% url 'change_cover_image' book.id %}"
-        enctype="multipart/form-data"
-        class="contents">
-    {% csrf_token %}
-
-    <label class="px-1 py-2 md:py-2 bg-[#f8f9fa] cursor-pointer hover:bg-gray-200 transition
-                    flex items-center justify-center text-xs md:text-sm"
-            for="coverInput">
-        Change cover image
-    </label>
-
-    <input id="coverInput"
-            name="cover"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            onchange="this.form.submit()">
-    </form>
 
 </div>
 {% endif %}
