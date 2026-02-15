@@ -149,6 +149,7 @@ def book_page(request, pk):
 
 def all_reviews(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
+    moderator = is_moderator(request.user)
 
     if request.user.is_authenticated:
         current_user_review = Review.objects.filter(book=book, user=request.user).first()
@@ -166,7 +167,8 @@ def all_reviews(request, book_id):
         'book': book, 
         'reviews': reviews, 
         'current_user_review': current_user_review, 
-        'page_obj': page_obj
+        'page_obj': page_obj, 
+        'moderator_logged': moderator
     }
 
     return render(request, 'all_reviews.html', context)

@@ -1,4 +1,5 @@
-<nav class="bg-[#2e4052] text-white">
+{% load static %}
+<nav class="fixed top-0 left-0 w-full z-50 bg-[#2e4052] text-white shadow-md border-b-1">
   <div class="container mx-auto px-4 h-14 sm:h-16 flex items-center justify-between ">
     <a href="{% url 'home' %}" class="text-lg font-semibold">BookRank</a>
 
@@ -67,12 +68,15 @@
     </div>
   </div>
 
-  <div id="mobile-menu" class="sm:hidden hidden border-t border-white/10 ">
+  <div id="mobile-menu" class="sm:hidden border-t border-white/10 max-h-0 overflow-hidden opacity-0 -translate-y-2 transition-all duration-300 ease-linear ">
     <div class="container mx-auto px-4 pb-3 flex flex-col items-center ">
-      <ul class="flex flex-col w-full gap-3 pt-2 text-left items-center">
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="{% url 'top_rated' %}">Top rated</a></li>
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="{% url 'best_authors' %}">Best authors</a></li>
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full" href="{% url 'explore' %}">Explore</a></li>
+      <ul class="flex flex-col w-full pt-2 text-center items-center">
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'top_rated' %}">Top rated</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'best_authors' %}">Best authors</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'explore' %}">Explore</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'library' %}">Library</a></li>
+        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'settings' %}">Settings</a></li>
+
 
         {% if user.is_authenticated %}
           <li class="w-full text-center py-2">
@@ -85,58 +89,4 @@
     </div>
   </div>
 </nav>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // Mobile hamburger
-    const toggleBtn = document.getElementById("menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu");
-
-    if (toggleBtn && mobileMenu) {
-      toggleBtn.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden");
-      });
-    }
-
-    // Profile dropdown
-    const profileToggle = document.getElementById("profile-toggle");
-    const profileMenu = document.getElementById("profile-menu");
-
-    if (profileToggle && profileMenu) {
-      const openMenu = () => {
-        profileMenu.classList.remove("hidden");
-        profileToggle.setAttribute("aria-expanded", "true");
-      };
-
-      const closeMenu = () => {
-        profileMenu.classList.add("hidden");
-        profileToggle.setAttribute("aria-expanded", "false");
-      };
-
-      const isOpen = () => !profileMenu.classList.contains("hidden");
-
-      profileToggle.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (isOpen()) closeMenu();
-        else openMenu();
-      });
-
-      // close menu after clicking on the outside
-      document.addEventListener("click", (e) => {
-        const clickedInside =
-          profileMenu.contains(e.target) || profileToggle.contains(e.target);
-        if (!clickedInside) closeMenu();
-      });
-
-      // close menu on ESC
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeMenu();
-      });
-
-      // close menu after choosing an item
-      profileMenu.querySelectorAll("a").forEach((a) => {
-        a.addEventListener("click", closeMenu);
-      });
-    }
-  });
-</script>
+<script src="{% static 'js/navbar.js' %}"></script>
