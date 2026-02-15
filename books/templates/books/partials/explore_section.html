@@ -70,7 +70,7 @@
               </div>
 
               <div class="mt-3 max-h-64 overflow-auto rounded-lg border border-slate-200 p-3" id="authorsList">
-                  {% include "_filter_authors_list.html" with authors=authors selected_authors=selected_authors %}
+                  {% include "books/partials/_filter_authors_list.html" with authors=authors selected_authors=selected_authors %}
               </div>
             </section>
 
@@ -106,7 +106,7 @@
               </div>
 
               <div class="mt-3 max-h-64 overflow-auto rounded-lg border border-slate-200 p-3" id="tagsList">
-                  {% include "_filter_tags_list.html" with tags=tags selected_tags=selected_tags %}
+                  {% include "books/partials/_filter_tags_list.html" with tags=tags selected_tags=selected_tags %}
               </div>
             </section>
 
@@ -181,7 +181,7 @@
               </div>
 
               <div class="mt-3 max-h-64 overflow-auto rounded-lg border border-slate-200 p-3" id="publishersList">
-                  {% include "_filter_publishers_list.html" with publishers=publishers selected_publishers=selected_publishers %}
+                  {% include "books/partials/_filter_publishers_list.html" with publishers=publishers selected_publishers=selected_publishers %}
               </div>
             </section>
 
@@ -228,7 +228,7 @@
 
     <main class="col-span-12 md:col-span-8 lg:col-span-9 w-full">
         <div id="exploreMain">
-            {% include 'partials/explore_main.html' %}
+            {% include 'books/partials/explore_main.html' %}
       </div>
     </main>
   </div>

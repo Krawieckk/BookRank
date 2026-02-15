@@ -86,7 +86,7 @@ def home(request):
     popular_tags = get_cached_results(tags_key)
 
     user = request.user
-    return render(request, 'home.html', context={'user': user, 
+    return render(request, 'books/home.html', context={'user': user, 
                                                  'authors': popular_authors, 
                                                  'tags': popular_tags})
 
@@ -145,7 +145,7 @@ def book_page(request, pk):
         "review_summary": review_summary, 
         "summary_is_generating": summary_is_generating
     }
-    return render(request, "book_page.html", context)
+    return render(request, "books/book_page.html", context)
 
 def all_reviews(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
@@ -171,7 +171,7 @@ def all_reviews(request, book_id):
         'moderator_logged': moderator
     }
 
-    return render(request, 'all_reviews.html', context)
+    return render(request, 'books/partials/all_reviews.html', context)
 
 def _user_has_liked_check(qs, user):
     if user.is_authenticated:
@@ -190,7 +190,7 @@ def add_review(request, pk):
     if Review.objects.filter(book=book, user=request.user).exists():
         form = ReviewForm(request.POST)
         form.add_error(None, "You already added a review for this book.")
-        return render(request, "partials/add_review_response.html", {
+        return render(request, "books/partials/add_review_response.html", {
             "book": book,
             "review_form": form,
             "current_user_review": Review.objects.filter(book=book, user=request.user).first(),
@@ -198,7 +198,7 @@ def add_review(request, pk):
 
     form = ReviewForm(request.POST)
     if not form.is_valid():
-        return render(request, "partials/add_review_response.html", {
+        return render(request, "books/partials/add_review_response.html", {
             "book": book,
             "review_form": form,
             "current_user_review": None,
@@ -211,7 +211,7 @@ def add_review(request, pk):
 
     clean_form = ReviewForm()
 
-    return render(request, "partials/add_review_response.html", {
+    return render(request, "books/partials/add_review_response.html", {
         "book": book,
         "review_form": clean_form,
         "current_user_review": review
@@ -233,7 +233,7 @@ def refresh_review_form(request, book_id):
 
     book = get_object_or_404(Book, id=book_id)
 
-    return render(request, 'partials/review_form.html', {
+    return render(request, 'books/partials/review_form.html', {
         'review_form': ReviewForm(),
         'book': book, 
         "current_user_review": None
@@ -252,7 +252,7 @@ def mark_helpful(request, review_id):
     
     r = _user_has_liked_check(Review.objects.filter(id=review.id), request.user).get()
 
-    return render(request, 'partials/single_review.html', {'review': r, 'moderator_logged': moderator})
+    return render(request, 'books/partials/single_review.html', {'review': r, 'moderator_logged': moderator})
 
 @require_POST
 @login_required
@@ -266,7 +266,7 @@ def unmark_helpful(request, review_id):
 
     r = _user_has_liked_check(Review.objects.filter(id=review.id), request.user).get()
 
-    return render(request, 'partials/single_review.html', {'review': r, 'moderator_logged': moderator})
+    return render(request, 'books/partials/single_review.html', {'review': r, 'moderator_logged': moderator})
 
 @require_POST
 @login_required
@@ -275,7 +275,7 @@ def add_to_read(request, book_id):
 
     _, created = Library.objects.get_or_create(user=request.user, book=book)
     
-    return render(request, 'partials/to_read_button.html', {'added_to_library': True, 'book': book})
+    return render(request, 'books/partials/to_read_button.html', {'added_to_library': True, 'book': book})
 
 @require_POST
 @login_required
@@ -284,7 +284,7 @@ def remove_to_read(request, book_id):
 
     deleted, _ = Library.objects.filter(user=request.user, book=book).delete()
 
-    return render(request, 'partials/to_read_button.html', {'added_to_library': False, 'book': book})
+    return render(request, 'books/partials/to_read_button.html', {'added_to_library': False, 'book': book})
 
 def book_search_suggestions(request):
     q = (request.GET.get("q") or "").strip()
@@ -316,11 +316,6 @@ def book_search_suggestions(request):
 
     return JsonResponse({"results": results})
 
-@login_required
-def profile(request):
-    user = request.user
-    return render(request, 'profile.html', {'user': user})
-
 def _get_user_library(user, active_filter):
     entries = Library.objects.filter(user=user)
     if active_filter == "to_read":
@@ -344,9 +339,9 @@ def library(request):
     }
 
     if request.headers.get('HX-Request'):
-       return render(request, "partials/library_content.html", context)
+       return render(request, "books/partials/library_content.html", context)
 
-    return render(request, "library.html", context)
+    return render(request, "books/library.html", context)
 
 @login_required
 def update_library_status(request, entry_id, new_status):
@@ -363,7 +358,7 @@ def update_library_status(request, entry_id, new_status):
             'user_library': user_library
         }
         
-        return render(request, 'partials/library_content.html', context)
+        return render(request, 'books/partials/library_content.html', context)
     
 @login_required
 def delete_from_library(request, entry_id):
@@ -379,7 +374,7 @@ def delete_from_library(request, entry_id):
             'user_library': user_library
         }
         
-        return render(request, 'partials/library_content.html', context)
+        return render(request, 'books/partials/library_content.html', context)
 
 SORT_MAP = {
     "rating_desc": "-average_rating",
@@ -495,11 +490,11 @@ def explore(request):
     if request.headers.get("HX-Request") == "true":
         target = request.headers.get('HX-Target')
         if target == 'exploreMain':
-            return render(request, "partials/explore_main.html", context)
+            return render(request, "books/partials/explore_main.html", context)
         if target == 'exploreSection':
-            return render(request, 'partials/explore_section.html', context)
+            return render(request, 'books/partials/explore_section.html', context)
 
-    return render(request, "explore.html", context)
+    return render(request, "books/explore.html", context)
 
 
 def authors_search_suggestions(request):
@@ -601,7 +596,7 @@ def top_rated(request):
         'page_obj': page_obj
     }
 
-    return render(request, 'top_rated.html', context)
+    return render(request, 'books/top_rated.html', context)
 
 def best_authors(request):
     authors_key = 'home:popular_authors:v1'
@@ -616,7 +611,7 @@ def best_authors(request):
         'page_obj': page_obj
     }
 
-    return render(request, 'best_authors.html', context)
+    return render(request, 'books/best_authors.html', context)
 
 def is_moderator(user):
     return user.groups.filter(name='Moderator').exists()
@@ -683,4 +678,4 @@ def moderator_delete_review(request, review_id):
         review = Review.objects.select_for_update().get(id=review_id)
         review.delete()
 
-    return render(request, 'partials/all_user_reviews.html')
+    return render(request, 'books/partials/all_user_reviews.html')

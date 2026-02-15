@@ -29,7 +29,7 @@ def register_site(request):
     else:
         form = RegisterForm()
 
-    return render(request, 'register.html', context={'form': form})
+    return render(request, 'users/register.html', context={'form': form})
 
 
 def login_site(request):
@@ -55,7 +55,7 @@ def login_site(request):
     else:
         form = LoginForm()
             
-    return render(request, 'login.html', context={'form': form, 'error_message': error_message})
+    return render(request, 'users/login.html', context={'form': form, 'error_message': error_message})
 
 @login_required
 def logout_site(request):
@@ -72,7 +72,7 @@ def update_password(request, success_message=None):
             form.save()
             update_session_auth_hash(request, form.user)
             success_message = 'You have successfully changed your password!'
-    return render(request, 'partials/password_change_form.html', {'password_change_form': form, 
+    return render(request, 'users/partials/password_change_form.html', {'password_change_form': form, 
                                                                   'success_message': success_message})
 
 @login_required
@@ -83,7 +83,7 @@ def update_username(request, new_username=None):
             form.save()
             form = UsernameUpdateForm(instance=request.user)
             new_username = request.user.username
-        return render(request, 'partials/username_change_form.html', {'username_change_form': form, 
+        return render(request, 'users/partials/username_change_form.html', {'username_change_form': form, 
                                                                       'new_username': new_username})
 
 @login_required
@@ -103,12 +103,12 @@ def update_profile_picture(request, success_message=None):
     else:
         form = ProfilePictureChangeForm(instance=profile)
 
-    return render(request, 'partials/profile_picture_change_form.html', {'profile_picture_change_form': form, 
+    return render(request, 'users/partials/profile_picture_change_form.html', {'profile_picture_change_form': form, 
                                                                          'success_message': success_message})
 
 @login_required 
 def settings(request):
-    return render(request, 'settings.html', {
+    return render(request, 'users/settings.html', {
         'username_change_form': UsernameUpdateForm(instance=request.user), 
         'password_change_form': CustomPasswordUpdateForm(request.user), 
         'profile_picture_change_form': ProfilePictureChangeForm(instance=request.user.profile)

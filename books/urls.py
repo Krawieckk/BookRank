@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home, book_search_suggestions, book_page, mark_helpful, unmark_helpful, add_review, add_to_read, remove_to_read, generate_summary, all_reviews, profile, delete_your_review, refresh_review_form, library, update_library_status, delete_from_library, explore, authors_search_suggestions, tags_search_suggestions, top_rated, moderator_delete_summary, moderator_delete_and_block_summary, moderator_block_summary, moderator_allow_summary, moderator_delete_review, best_authors, publishers_search_suggestions
+from .views import home, book_search_suggestions, book_page, mark_helpful, unmark_helpful, add_review, add_to_read, remove_to_read, generate_summary, all_reviews, delete_your_review, refresh_review_form, library, update_library_status, delete_from_library, explore, authors_search_suggestions, tags_search_suggestions, top_rated, moderator_delete_summary, moderator_delete_and_block_summary, moderator_block_summary, moderator_allow_summary, moderator_delete_review, best_authors, publishers_search_suggestions
 
 urlpatterns = [
     path('', home, name='home'), 
@@ -23,8 +23,6 @@ urlpatterns = [
     path("allow-summary/<int:book_id>/", moderator_allow_summary, name='moderator_allow_summary'),
     path("moderator-delete-review/<int:review_id>/", moderator_delete_review, name='moderator_delete_review'),
 
-
-    path("profile/", profile, name='profile'), 
     path("library/", library, name='library'),
     path("library/<int:entry_id>/<str:new_status>/", update_library_status, name='update_library_status'),
     path("library/<int:entry_id>/", delete_from_library, name='delete_from_library'),

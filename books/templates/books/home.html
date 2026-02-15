@@ -5,7 +5,7 @@
 
 <section class="w-full flex flex-col justify-center items-center gap-12 sm:py-8">
     <h2 class="sm:text-lg md:text-xl text-center font-semibold">This is the place to find your next book...</h2>
-    {% include 'partials/search_bar.html' %}
+    {% include 'books/partials/search_bar.html' %}
 </section>
 
 <section class="relative w-full mt-12 sm:mt-16 py-8 text-white flex justify-center items-center 
@@ -13,8 +13,8 @@
                 before:w-[200vw] before:left-[-50vw] before:-z-10 overflow-visible">
 
     <div class="container mx-auto flex justify-center items-center flex-col sm:flex-row gap-10 sm:gap-24 md:gap-44 py-4">
-        {% include 'partials/home_tags_filter.html' %}
-        {% include 'partials/home_authors_filter.html' %}
+        {% include 'books/partials/home_tags_filter.html' %}
+        {% include 'books/partials/home_authors_filter.html' %}
     </div>
 </section>
 

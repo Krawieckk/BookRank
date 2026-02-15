@@ -85,10 +85,10 @@
   </div>
 
   <div id="to_read_slot" class="my-8 md:my-12 flex items-start justify-center md:justify-start">
-      {% include 'partials/to_read_button.html' %}
+      {% include 'books/partials/to_read_button.html' %}
   </div>
 
-  {% include 'partials/moderator_panel.html' %}
+  {% include 'books/partials/moderator_panel.html' %}
 
   <div class="mt-2 md:mt-10">
     <h2 class="text-lg font-medium text-gray-700">
@@ -135,7 +135,7 @@
       <div id="review-form-slot"
            hx-get="{% url 'refresh_review_form' book.id %}"
            hx-trigger="reviewDeleted from:body">
-        {% include 'partials/review_form.html' %}
+        {% include 'books/partials/review_form.html' %}
       </div>
       
     </div>
@@ -151,12 +151,12 @@
           <span class="absolute left-6 top-0 h-full w-px bg-gray-300" aria-hidden="true"></span>
           <div id="user-review">
             {% if current_user_review %}
-              {% include 'partials/user_review.html' %}
+              {% include 'books/partials/user_review.html' %}
             {% endif %}
           </div>
 
           {% for review in reviews %}
-            {% include 'partials/single_review.html' %}
+            {% include 'books/partials/single_review.html' %}
           {% endfor %}
         </ul>
       </div>
