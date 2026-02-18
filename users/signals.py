@@ -35,6 +35,11 @@ def delete_old_profile_picture_on_change(sender, instance: Profile, **kwargs):
         return
     if old_file == new_file:
         return
+    
+    default_image_path = 'avatars/profile-picture.png'
+
+    if old_file.name == default_image_path:
+        return
 
     old_file.delete(save=False)
 

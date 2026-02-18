@@ -6,7 +6,6 @@ class Author(models.Model):
     name = models.CharField(max_length=200)
     bio = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -66,7 +65,6 @@ class Review(models.Model):
     rating = models.PositiveSmallIntegerField(choices=rating_choices)
     review_text = models.TextField()
     inserted_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     helpful_count = models.PositiveIntegerField(default=0, db_index=True)
 
@@ -79,7 +77,6 @@ class Review(models.Model):
 class ReviewSummary(models.Model):
     summary_text = models.TextField(blank=True, null=True)
     inserted_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     reviews_added_count = models.PositiveIntegerField(default=0)
     last_summarized_count = models.PositiveIntegerField(default=0)
     is_generating = models.BooleanField(default=False)
@@ -119,7 +116,6 @@ class Library(models.Model):
                                       choices=reading_status_choices)
     
     added_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)

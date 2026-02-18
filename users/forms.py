@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
 import os
+from uuid import uuid4
 
 class RegisterForm(UserCreationForm):
     class Meta:
@@ -189,7 +190,7 @@ class ProfilePictureChangeForm(forms.ModelForm):
 
             ext_map = {"JPEG": ".jpg", "PNG": ".png"}
             base = os.path.splitext(file.name)[0]
-            new_name = f"{base}{ext_map[fmt]}"
+            new_name = f"avatar_{uuid4().hex}{ext_map[fmt]}"
 
             resized_file = InMemoryUploadedFile(
                 file=buffer,
