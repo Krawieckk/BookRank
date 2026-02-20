@@ -1,7 +1,7 @@
 import os
 from celery import shared_task
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, F
 from openai import OpenAI
 
 from .models import Book, Review, ReviewSummary
@@ -25,11 +25,14 @@ def generate_review_summary_for_book(self, book_id: int):
         rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
 
         if (not book.allow_summary) or (not book.is_active):
-            rs.is_generating = False
-            rs.save(update_fields=["is_generating"])
             return
 
-        if not rs.is_generating:
+        updated = ReviewSummary.objects.filter(
+            pk=rs.pk, 
+            is_generating=False, 
+        ).update(is_generating=True) 
+
+        if updated != 1:
             return
 
     reviews = list(

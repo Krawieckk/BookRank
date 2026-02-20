@@ -31,8 +31,6 @@ def increase_review_count(sender, instance, **kwargs):
     """
     book_id = instance.book_id
 
-    print('sygnał się odpala')
-
     def update():
         Book.objects.filter(id=book_id).update(
             reviews_count = F('reviews_count') + 1
@@ -92,10 +90,6 @@ def review_created_maybe_trigger_summary(sender, instance: Review, created: bool
         )
 
         if not should_generate:
-            return
-
-        updated = ReviewSummary.objects.filter(pk=rs.pk, is_generating=False).update(is_generating=True)
-        if updated != 1:
             return
 
         def _enqueue():
