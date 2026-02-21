@@ -12,6 +12,7 @@
             hx-target="#exploreSection"
             hx-swap="innerHTML"
             hx-push-url="true"
+            aria-label="Delete {{name}} from filters"
             class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
         >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="size-5">
@@ -30,6 +31,7 @@
             hx-target="#exploreSection"
             hx-swap="innerHTML"
             hx-push-url="true"
+            aria-label="Delete {{name}} from filters"
             class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
         >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.0" stroke="currentColor" class="size-5">
@@ -48,6 +50,7 @@
             hx-target="#exploreSection"
             hx-swap="innerHTML"
             hx-push-url="true"
+            aria-label="Delete {{publisher_name}} from filters"
             class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
         >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.0" stroke="currentColor" class="size-5">
@@ -65,6 +68,7 @@
             hx-target="#exploreSection"
             hx-swap="innerHTML"
             hx-push-url="true"
+            aria-label="Delete 'summary generated' from filters"
             class="shrink-0 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition text-xs"
         >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.0" stroke="currentColor" class="size-5">
@@ -93,10 +97,10 @@
               <input type="hidden" name="tags" value="{{ t }}">
             {% endfor %}
 
+            <label for="sort-option-menu" class="absolute w-[1px] h-[1px] p-0 overflow-hidden">Select sorting option</label>
             <select
-              aria-label="sort-option"
+              aria-label="sort-option-menu"
               name="sort"
-              onchange="this.form.submit()"
               class="h-8 w-56 text-xs md:text-sm rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
             >
               <option value="rating_desc" {% if sort == "rating_desc" %}selected{% endif %}>Ratings - descending</option>
@@ -106,6 +110,9 @@
               <option value="newest"      {% if sort == "newest" %}selected{% endif %}>Publication year - newest</option>
               <option value="oldest"      {% if sort == "oldest" %}selected{% endif %}>Publication year - oldest</option>
             </select>
+            <button type="submit" class="bg-slate-800 text-white h-8 px-4 rounded-md text-xs hover:bg-slate-700 transition-colors">
+              Sort
+            </button>
           </form>
         </div>
       </div>

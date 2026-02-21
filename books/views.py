@@ -624,7 +624,7 @@ def generate_summary(request, book_id):
         rs, _ = ReviewSummary.objects.select_for_update().get_or_create(book=book)
 
         if rs.is_generating:
-            return redirect("home")
+            return redirect("book_page", pk=book_id)
 
         transaction.on_commit(lambda: generate_review_summary_for_book.delay(book.id))
 

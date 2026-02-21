@@ -6,7 +6,7 @@
         <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50 ">
         {% if book.cover_image %}
           <img src="{{ book.cover_image.url }}" 
-               alt="{{ book.title }}"
+               alt="{{ book.title }} cover image"
                class="h-full w-full object-fit loading">
         {% endif %}
       </div>
@@ -16,9 +16,9 @@
       <div class="flex w-full flex-col lg:flex-row items-start lg:items-center justify-between">
         <div class="h-full flex flex-col items-start justify-center w-full md:w-[75%]">
           <a href="{% url 'book_page' book.id %}">
-            <h3 class=" text-sm md:text-base font-semibold text-slate-900">
+            <h2 class=" text-sm md:text-base font-semibold text-slate-900">
               {{ book.title|truncatewords:10 }}
-            </h3>
+            </h2>
           </a>
 
           <p class="mt-1 text-xs lg:text-sm text-slate-600">

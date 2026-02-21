@@ -85,8 +85,9 @@ def review_created_maybe_trigger_summary(sender, instance: Review, created: bool
         rs.refresh_from_db()
 
         should_generate = (
-            (not rs.is_generating) and
-            (rs.reviews_added_count - rs.last_summarized_count >= 20)
+            (not rs.is_generating and book.allow_summary and book.is_active) and
+            (rs.reviews_added_count - rs.last_summarized_count >= 20) or
+            (book.reviews_count >= 30 and not book.summary_generated)
         )
 
         if not should_generate:
