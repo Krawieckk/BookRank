@@ -38,7 +38,6 @@
               hx-trigger="change delay:150ms, submit">
           <input type="hidden" name="sort" value="{{ sort }}"/>
 
-          
             <!-- AUTHORS -->
             <section class="border-b-1 border-slate-200 pb-5">
               <h3 class="text-sm font-semibold text-slate-900 ">Authors</h3>
@@ -283,13 +282,11 @@
       }
     });
 
-    // Po przejściu na >= lg: sprzątamy overlay / scroll-lock
     window.addEventListener("resize", () => {
       if (!isMobile()) {
         overlay.classList.add("hidden");
         document.body.classList.remove("overflow-hidden");
         openBtn.setAttribute("aria-expanded", "false");
-        // nie musimy ruszać aside — lg:translate-x-0 i lg:static zrobi swoje
       }
     });
 

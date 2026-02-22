@@ -40,8 +40,8 @@ class Book(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    authors = models.ManyToManyField(Author, related_name='book_authors', blank=True)
-    tags = models.ManyToManyField(Tag, related_name='book_tags', blank=True)
+    authors = models.ManyToManyField(Author, related_name='book_authors', blank=True, null=True)
+    tags = models.ManyToManyField(Tag, related_name='book_tags', blank=True, null=True)
 
     publisher = models.ForeignKey(Publisher, 
                                   related_name='book_publisher', 
