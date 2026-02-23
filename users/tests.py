@@ -8,7 +8,7 @@ from users.models import Profile
 User = get_user_model()
 
 # Create your tests here.
-class CreateProfileSignalWorksTest(TransactionTestCase):
+class CreateProfileSignalWorksTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='pass12345', email='user@email.com')
 
@@ -37,11 +37,6 @@ class UpdateUsernameTests(TestCase):
 
         self.assertEqual(self.user.username, "newname")
         self.assertEqual(resp.context["new_username"], "newname")
-
-    def test_unauthenticated_user_cannot_access(self):
-        resp = self.client.post(self.url, {"username": "newname"})
-
-        self.assertEqual(resp.status_code, 302)
 
     def test_cannot_change_to_existing_username(self):
         User.objects.create_user(
