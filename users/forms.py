@@ -84,6 +84,7 @@ class UsernameUpdateForm(forms.ModelForm):
             self.fields['username'].widget.attrs.update({
                 'placeholder': current_username, 
                 'class': 'w-full border px-2 py-1',
+                'id': 'id_username_helptext',
             })
 
 
@@ -99,9 +100,17 @@ class CustomPasswordUpdateForm(PasswordChangeForm):
                 'class': 'w-full border px-2 py-1'
             })
 
-        self.fields['old_password'].widget.attrs['autocomplete'] = 'current-password'
-        self.fields['new_password1'].widget.attrs['autocomplete'] = 'new-password'
-        self.fields['new_password2'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['old_password'].widget.attrs.update({
+            'autocomplete': 'current-password'
+        })
+        self.fields['new_password1'].widget.attrs.update({
+            'autocomplete': 'new-password', 
+            'id': 'id_new_password1_helptext'
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'autocomplete': 'new-password', 
+            'id': 'id_new_password2_helptext'
+        })
         
 class ProfilePictureChangeForm(forms.ModelForm):
     MAX_SIZE = 3 * 1024 * 1024

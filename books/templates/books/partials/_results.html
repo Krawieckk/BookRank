@@ -1,25 +1,27 @@
 
 <div class="space-y-6 w-full">
+  
   {% for book in page_obj.object_list %}
-    <article class="flex gap-5 border-b-1 border-slate-300 pb-5">
-      <a href="{% url 'book_page' book.id %}">
+
+  <a href="{% url 'book_page' book.id %}"
+    class="block border-b-1 border-slate-300 pb-5 hover:bg-slate-50">
+
+    <article class="flex gap-5 ">
+      
         <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50 ">
         {% if book.cover_image %}
           <img src="{{ book.cover_image.url }}" 
-               alt="{{ book.title }} cover image"
+               alt="cover image of: {{ book.title|truncatewords:10 }}..."
                class="h-full w-full object-fit loading">
         {% endif %}
       </div>
-      </a>
       
 
       <div class="flex w-full flex-col lg:flex-row items-start lg:items-center justify-between">
         <div class="h-full flex flex-col items-start justify-center w-full md:w-[75%]">
-          <a href="{% url 'book_page' book.id %}">
             <h2 class=" text-sm md:text-base font-semibold text-slate-900">
-              {{ book.title|truncatewords:10 }}
+              {{ book.title|truncatewords:14 }}
             </h2>
-          </a>
 
           <p class="mt-1 text-xs lg:text-sm text-slate-600">
             Author:
@@ -40,14 +42,15 @@
           </p>
         </div>
 
-        <a
+        <!-- <a
           href="{% url 'book_page' book.pk %}"
           class="hidden md:block flex px-3 py-1 items-center justify-center border border-slate-400 text-sm  text-slate-900 hover:bg-slate-50"
         >
           Details →
-        </a>
+        </a> -->
       </div>
     </article>
+    </a>
   {% empty %}
     <p class="text-sm text-slate-600">No results</p>
   {% endfor %}

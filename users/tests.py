@@ -8,7 +8,7 @@ from users.models import Profile
 User = get_user_model()
 
 # Create your tests here.
-class CreateProfileSignalWorksTest(TestCase):
+class CreateProfileSignalWorksTest(TransactionTestCase):
     def setUp(self):
         self.user = User.objects.create(username='user', password='pass12345', email='user@email.com')
 

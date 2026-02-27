@@ -10,7 +10,8 @@
             class="border-1  px-2 py-1 md:py-2 text-xs bg-[#f8f9fa] font-semibold">Reload the page</a>
         </div>
     {% else %}
-    <div class="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 py-3 text-xs text-black px-2 text-center font-semibold truncate border-b-1 border-[#e67067]">
+    <div class="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 py-3 text-xs 
+                text-black px-2 text-center font-semibold truncate border-b-1 border-[#e67067]">
         {% if book.summary_generated %}
             <a href="{% url 'moderator_delete_summary' book.id %}"
                 class="border-1  px-1 py-1 md:py-2 bg-[#dc3545] text-white">Delete summary</a>

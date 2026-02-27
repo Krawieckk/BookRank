@@ -86,7 +86,11 @@ class AuthorizationTests(TransactionTestCase):
 
 class ReviewSummaryTests(TransactionTestCase):
     def setUp(self):
-        self.moderator = User.objects.create_user(username="moderator", password="pass12345", email='mod@email.com')
+        self.moderator = User.objects.create_user(
+            username="moderator", 
+            password="pass12345", 
+            email='mod@email.com'
+        )
         self.book = Book.objects.create(title="Test Book")
         self.rs = ReviewSummary.objects.create(book=self.book)
 
