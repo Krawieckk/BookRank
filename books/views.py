@@ -244,7 +244,6 @@ def refresh_review_form(request, book_id):
 def mark_helpful(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     moderator = is_moderator(request.user)
-    print(moderator)
 
     _, created = ReviewHelpfulness.objects.get_or_create(user=request.user, review=review)
     if created:
