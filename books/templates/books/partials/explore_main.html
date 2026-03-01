@@ -8,6 +8,7 @@
         <p class="min-w-0 text-xs text-slate-700 truncate">{{name}}</p>
         <button 
             type="button"
+            hx-trigger="click throttle:1000ms"
             hx-get="{% url 'explore' %}{% qs_remove 'authors' id %}"
             hx-target="#exploreSection"
             hx-swap="innerHTML"
@@ -26,7 +27,7 @@
         <p class="min-w-0 text-xs text-slate-700 truncate">{{name}}</p>
         <button 
             type="button"
-            type="button"
+            hx-trigger="click throttle:1000ms"
             hx-get="{% url 'explore' %}{% qs_remove 'tags' id %}"
             hx-target="#exploreSection"
             hx-swap="innerHTML"
@@ -47,6 +48,7 @@
         <button 
             type="button"
             hx-get="{% url 'explore' %}{% qs_remove 'publishers' id %}"
+            hx-trigger="click throttle:1000ms"
             hx-target="#exploreSection"
             hx-swap="innerHTML"
             hx-push-url="true"
@@ -65,6 +67,7 @@
         <button 
             type="button"
             hx-get="{% url 'explore' %}{% qs_remove 'summary_generated' 'on' %}"
+            hx-trigger="click throttle:1000ms"
             hx-target="#exploreSection"
             hx-swap="innerHTML"
             hx-push-url="true"
