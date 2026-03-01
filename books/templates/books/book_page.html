@@ -4,7 +4,7 @@
 <section class="mx-auto max-w-[1000px] px-4 sm:px-6 lg:px-8">
   <div class="flex flex-col items-center gap-8 md:flex-row md:items-center">
     <div class="shrink-0">
-      <div class="w-30 h-44 md:w-38 md:h-56  shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50">
+      <div class="w-30 h-44 md:w-38 md:h-56  shrink-0 overflow-hidden border border-slate-200 bg-slate-50">
         {% if book.cover_image %}
           <img
             src="{{ book.cover_image.url }}"
@@ -13,7 +13,7 @@
             loading="lazy"
           />
         {% else %}
-          <div class="w-full aspect-[2/3] rounded-sm bg-gray-200 shadow flex items-center justify-center text-xs text-gray-500">
+          <div class="w-full aspect-[2/3] bg-gray-200 shadow flex items-center justify-center text-xs text-gray-500">
             No cover image
           </div>
         {% endif %}
@@ -21,14 +21,14 @@
     </div>
 
     <div class="w-full text-center md:text-left relative">
-      <h1 class="text-xl sm:text-2xl font-semibold text-gray-900 block">
+      <h1 class="text-xl sm:text-2xl font-semibold block">
         {{ book.title }}
       </h1>
 
-      <dl class="mt-6 space-y-4 text-sm text-gray-800">
+      <div class="mt-6 space-y-4 text-sm">
         <div class="flex gap-1 md:flex-row md:gap-3 text-left">
-          <dt class="font-medium text-gray-900">Author:</dt>
-          <dd class="text-gray-700">
+          <dt class=" font-semibold">Author:</dt>
+          <dd class="">
             {% if book.authors.all %}
                 {% for author in book.authors.all %}
                     {{ author }}
@@ -40,12 +40,12 @@
         </div>
 
         <div class="flex gap-1 md:gap-3">
-          <dt class="font-medium text-gray-900">Tags:</dt>
-          <dd class="text-gray-700">
+          <dt class=" font-semibold">Tags:</dt>
+          <dd class="">
             {% if book.tags.all %}
               <div class="flex flex-wrap justify-center md:justify-start gap-2">
                 {% for tag in book.tags.all %}
-                  <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-800">
+                  <span class="inline-flex items-center bg-gray-100 px-2.5 py-1 text-xs ">
                     {{ tag.name }}
                   </span>
                 {% endfor %}
@@ -57,21 +57,21 @@
         </div>
 
         <div class="flex gap-1 md:gap-3">
-          <dt class="font-medium text-gray-900">Publisher:</dt>
-          <dd class="text-gray-700">
+          <dt class=" font-semibold">Publisher:</dt>
+          <dd class="">
             {{ book.publisher }}
           </dd>
         </div>
 
         <div class="flex gap-1 md:gap-3">
-          <dt class="font-medium text-gray-900">Publication year:</dt>
-          <dd class="text-gray-700">
+          <dt class=" font-semibold">Publication year:</dt>
+          <dd class="">
             {{ book.publication_year }}
           </dd>
         </div>
 
         <div class="flex gap-1 md:gap-3">
-          <dt class="font-medium text-gray-900">More information: </dt>
+          <dt class=" font-semibold">More information: </dt>
           <a href="{{ book.info_link }}" target="_blank">
             <dd class="text-blue-600">
             Books Google 
@@ -79,7 +79,7 @@
           </a>
           
         </div>
-      </dl>
+      </div>
     </div>
 
   </div>
@@ -90,12 +90,13 @@
 
   {% include 'books/partials/moderator_panel.html' %}
 
-  <div class="mt-2 md:mt-10">
-    <h2 class="text-lg font-medium text-gray-700">
+  <div class="mt-2 md:mt-10 ">
+    <h2 class="text-lg ">
       Description
     </h2>
 
-    <div class="mt-4 text-sm sm:text-base text-gray-800">
+
+    <div class="mt-4 text-sm sm:text-base">
       {% if book.description %}
         <p class="">
           {{ book.description }}
@@ -108,11 +109,11 @@
 
   {% if review_summary.summary_text %}
     <div class="mt-8 md:mt-10">
-        <h2 class="text-lg font-medium text-gray-700">
+        <h2 class="text-lg  ont-semibold">
           AI Generated summary <span class="text-sm">(based on 30 most helpful reviews)</span>
         </h2>
 
-        <p class="mt-4 text-sm sm:text-base text-gray-800">
+        <p class="mt-4 text-sm sm:text-base">
           {{ review_summary.summary_text }}
         </p>
 
@@ -121,11 +122,11 @@
 
     <div class="mt-12 md:mt-10">
     <div class="flex flex-col gap-2">
-      <h2 class="text-lg font-medium text-gray-700">
+      <h2 class="text-lg ">
         User reviews
       </h2>
 
-      <p class="text-sm text-gray-700">
+      <p class="text-sm ">
         Average rating: {{ book.average_rating }} out of 5  (based on {{ book.reviews_count }} reviews)
       </p>
     </div>
@@ -140,15 +141,15 @@
       
     </div>
     {% else %}
-      <p class="mt-6 text-sm text-gray-600">
-        To add a review, please <a class="underline" href="{% url 'login' %}">sign in</a>.
+      <p class="mt-6 text-sm ">
+        To add a review, please <a class="underline font-semibold" href="{% url 'login' %}">sign in</a>.
       </p>
     {% endif %}
 
     {% if reviews %}
       <div class="mt-6">
         <ul class="relative space-y-12">
-          <span class="absolute left-6 top-0 h-full w-px bg-gray-300" aria-hidden="true"></span>
+          <!-- <span class="absolute left-6 top-0 h-full w-px bg-gray-300" aria-hidden="true"></span> -->
           <div id="user-review">
             {% if current_user_review %}
               {% include 'books/partials/user_review.html' %}
@@ -168,7 +169,7 @@
   {% if book.reviews_count > 5 %}
   <div class="flex items-center justify-center mt-10">
       <a href="{% url 'all_reviews' book.id %}" 
-      class="text-sm text-gray-700 px-4 py-3 hover:bg-gray-100 border border-gray-400">
+      class="text-sm  px-4 py-3 hover:bg-gray-100 border border-gray-400">
         Show all {{ book.reviews_count }} reviews
       </a>
     

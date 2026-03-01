@@ -10,12 +10,12 @@ class ReviewForm(ModelForm):
         widgets = {
             "rating": forms.Select(attrs={
                 "class": (
-                    "w-full rounded-sm border border-slate-400 bg-white px-3 py-2 text-sm focus:border-slate-600 focus:ring-0"
+                    "w-full border border-slate-400 bg-white px-3 py-2 text-sm focus:border-slate-600 focus:ring-0"
                 )
             }),
             "review_text": forms.Textarea(attrs={
                 "class": (
-                    "w-full rounded-sm border border-slate-400 bg-white px-3 py-3 text-sm "
+                    "w-full border border-slate-400 bg-white px-3 py-3 text-sm "
                     "focus:border-slate-600 focus:ring-0"
                 ),
                 "rows": 8,

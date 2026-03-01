@@ -8,7 +8,7 @@
 
     <article class="flex gap-5 ">
       
-        <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50 ">
+        <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden border border-slate-200 bg-slate-50 ">
         {% if book.cover_image %}
           <img src="{{ book.cover_image.url }}" 
                alt="cover image of: {{ book.title|truncatewords:10 }}..."
@@ -60,19 +60,19 @@
   <nav class="mt-10 flex items-center justify-center gap-4">
     {% if page_obj.has_previous %}
       <a href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
-        class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+        class="border-b px-3 py-2 text-sm hover:bg-slate-50"
       >
         Prev
       </a>
     {% endif %}
 
-    <span class="text-sm text-slate-600">
+    <span class="text-sm">
       Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
     </span>
 
     {% if page_obj.has_next %}
       <a href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
-        class="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+        class="border-b px-3 py-2 text-sm hover:bg-slate-50"
       >
         Next
       </a>

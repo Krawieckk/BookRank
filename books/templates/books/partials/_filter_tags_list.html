@@ -1,4 +1,4 @@
-<div class="space-y-2">
+<div class="space-y-4">
   {% for t in tags %}
     {% with t_id=t.id|stringformat:"s" %}
       <label class="flex cursor-pointer items-center gap-3">
@@ -6,10 +6,10 @@
           type="checkbox"
           name="tags"
           value="{{ t.id }}"
-          class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+          class="h-4 w-4 border-slate-300 text-slate-900 focus:ring-slate-900"
           {% if t_id in selected_tags %}checked{% endif %}
         >
-        <span class="text-sm text-slate-700">{{ t.name }}</span>
+        <span class="text-sm">{{ t.name }}</span>
       </label>
     {% endwith %}
   {% empty %}

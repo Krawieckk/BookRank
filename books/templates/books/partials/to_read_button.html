@@ -5,16 +5,7 @@
         hx-post="{% url 'remove_to_read' book.id %}"
         hx-target="#to_read_slot"
         hx-swap="innerHTML"
-        class="bg-white text-sm hover:bg-gray-100 text-gray-800 py-2 px-3 flex justify-center items-center border border-gray-300 gap-2 shadow">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 6V19C2 20.1046 2.89543 21 4 21H12L20 21C21.1046 21 22 20.1046 22 19V6" stroke="#2C3E50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            
-            <path d="M12 21C12 21 10 18 4 18H2V5C2 5 8 5 12 8" stroke="#3498DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            
-            <path d="M12 21C12 21 14 18 20 18H22V5C22 5 16 5 12 8" stroke="#3498DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            
-            <line x1="12" y1="8" x2="12" y2="21" stroke="#2C3E50" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+        class="bg-[#2e4052] hover:cursor-pointer text-sm text-white py-2 px-3 flex justify-center items-center border border-gray-300 gap-2 shadow">
         Remove from your library
     </button>
     {% else %}
@@ -23,16 +14,7 @@
         hx-post="{% url 'add_to_read' book.id %}"
         hx-target="#to_read_slot"
         hx-swap="innerHTML"
-        class="bg-white text-sm hover:bg-gray-100 text-gray-800 py-2 px-3 flex justify-center items-center border border-gray-300 gap-2 shadow">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 6V19C2 20.1046 2.89543 21 4 21H12L20 21C21.1046 21 22 20.1046 22 19V6" stroke="#2C3E50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            
-            <path d="M12 21C12 21 10 18 4 18H2V5C2 5 8 5 12 8" stroke="#3498DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            
-            <path d="M12 21C12 21 14 18 20 18H22V5C22 5 16 5 12 8" stroke="#3498DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            
-            <line x1="12" y1="8" x2="12" y2="21" stroke="#2C3E50" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+        class="bg-[#2e4052] hover:cursor-pointer text-sm text-white py-2 px-3 flex justify-center items-center border border-gray-300 gap-2 shadow">
         Add to your library
     </button>
     {% endif %}

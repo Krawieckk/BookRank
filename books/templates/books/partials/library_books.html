@@ -4,7 +4,7 @@
             
             <div class="flex flex-row gap-4 flex-1 min-w-0">
                 <a href="{% url 'book_page' entry.book.id %}">
-                    <div class="w-20 h-28 sm:w-32 sm:h-44 flex-shrink-0 overflow-hidden shadow-sm rounded-sm">
+                    <div class="w-20 h-28 sm:w-32 sm:h-44 flex-shrink-0 overflow-hidden shadow-sm">
                         <img src="{{ entry.book.cover_image.url }}" alt="{{ entry.book.title }} Cover" class="w-full h-full object-fit">
                     </div>
                 </a>
@@ -26,6 +26,7 @@
                     <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='to_read' %}?filter={{ active_filter }}"
                             hx-target="#library-content"
                             hx-swap="innerHTML"
+                            hx-trigger="click throttle:1000ms"
                             class="w-24 sm:w-32 px-1 sm:px-2 py-2 text-[10px] sm:text-sm font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'to_read' %}bg-slate-800 text-white active{% endif %}">
                         To read
                     </button>
@@ -33,6 +34,7 @@
                     <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='in_progress' %}?filter={{ active_filter }}"
                             hx-target="#library-content"
                             hx-swap="innerHTML"
+                            hx-trigger="click throttle:1000ms"
                             class="w-24 sm:w-32 px-1 sm:px-2 py-2 text-[10px] sm:text-sm font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'in_progress' %}bg-slate-800 text-white active{% endif %}">
                         In progress
                     </button>
@@ -40,6 +42,7 @@
                     <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='finished' %}?filter={{ active_filter }}"
                             hx-target="#library-content"
                             hx-swap="innerHTML"
+                            hx-trigger="click throttle:1000ms"
                             class="w-24 sm:w-32 px-1 sm:px-2 py-2 text-[10px] sm:text-sm font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'finished' %}bg-slate-800 text-white active{% endif %}">
                         Finished
                     </button>

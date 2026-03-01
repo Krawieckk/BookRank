@@ -1,7 +1,7 @@
 {% load static %}
 
-<li class="relative pl-16" id="review-{{ review.id }}">
-    <div class="absolute left-2 top-0">
+<li class="relative pl-12" id="review-{{ review.id }}">
+    <div class="absolute left-0 top-0">
     <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center ring-4 ring-white">
         <img class="rounded-full w-9 h-9 border border-black"
             src="{{ review.user.profile.profile_picture.url }}"
@@ -69,7 +69,7 @@
             hx-target="#review-{{ review.id }}"
             hx-swap="outerHTML"
             hx-trigger="click throttle:1000ms"
-            class="px-2 py-1 text-xs md:text-sm border-b-1 border-grey-300"
+            class="px-2 py-1 text-xs md:text-sm border-b-1 border-grey-300 hover:cursor-pointer"
             >
             Unmark this review as helpful
             </button>
@@ -83,7 +83,7 @@
             hx-target="#review-{{ review.id }}"
             hx-swap="outerHTML"
             hx-trigger="click throttle:1000ms"
-            class="px-2 py-1 text-xs md:text-sm border-b-1 border-grey-300"
+            class="px-2 py-1 text-xs md:text-sm border-b-1 border-grey-300 hover:cursor-pointer"
             >
             Mark this review as helpful
         </button>

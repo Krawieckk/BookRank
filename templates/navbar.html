@@ -70,18 +70,16 @@
 
   <div id="mobile-menu" class="sm:hidden border-t border-white/10 max-h-0 overflow-hidden opacity-0 -translate-y-2 transition-all duration-300 ease-linear ">
     <div class="container mx-auto px-4 pb-3 flex flex-col items-center ">
-      <ul class="flex flex-col w-full pt-2 text-center items-center">
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'top_rated' %}">Top rated</a></li>
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'best_authors' %}">Best authors</a></li>
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'explore' %}">Explore</a></li>
+      <ul class="flex flex-col w-full pt-2 text-left items-start">
+        <li class="w-full pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'top_rated' %}">Top rated</a></li>
+        <li class="w-full pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'best_authors' %}">Best authors</a></li>
+        <li class="w-full pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'explore' %}">Explore</a></li>
 
 
         {% if user.is_authenticated %}
-          <li class="w-full text-center py-2">
-            <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'library' %}">Library</a></li>
-            <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'settings' %}">Settings</a></li>
-            <li class="w-full pt-1 pb-2"><a href="{% url 'logout' %}" class="text-red-400">Logout</a></li>
-          </li>
+          <li class="w-full pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'library' %}">Library</a></li>
+          <li class="w-full pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'settings' %}">Settings</a></li>
+          <li class="w-full pb-2"><a href="{% url 'logout' %}" class="text-red-400">Logout</a></li>
         {% else %}
           <li><a class="block px-3 py-2" href="{% url 'register' %}">Sign in / Sign up</a></li>
         {% endif %}
