@@ -91,30 +91,30 @@ def home(request):
                                                  'tags': popular_tags})
 
 def book_page(request, pk):
-    book = get_object_or_404(Book, id=pk)
+    book = Book.objects.prefetch_related('authors', 'tags').select_related('publisher').get(id=pk)
 
-    review_summary = ReviewSummary.objects.filter(book_id=pk).first()
+    review_summary = ReviewSummary.objects.filter(book_id=pk).only('summary_text', 'is_generating').first()
 
     if review_summary:
         summary_is_generating = review_summary.is_generating
     else:
-        summary_is_generating = None
+        summary_is_generating = False
 
     review_form = ReviewForm()
 
-    if request.user.groups.filter(name='Moderator').exists():
+    if is_moderator(request.user):
         moderator = True
     else:
         moderator = False
 
     if request.user.is_authenticated:
-        current_user_review = Review.objects.filter(book=book, user=request.user).first()
-        added_to_library = Library.objects.filter(book=book, user=request.user).exists()
+        current_user_review = Review.objects.filter(book_id=pk, user=request.user).select_related('user').first()
+        added_to_library = Library.objects.filter(book_id=pk, user=request.user).exists()
     else:
         current_user_review = None
-        added_to_library = None
+        added_to_library = False
 
-    reviews_qs = Review.objects.filter(book=book)
+    reviews_qs = Review.objects.select_related('user').filter(book_id=pk)
     if current_user_review:
         reviews_qs = reviews_qs.exclude(id=current_user_review.id)
 
@@ -126,10 +126,6 @@ def book_page(request, pk):
                     review_id=OuterRef("pk")
                 )
             )
-        ).order_by('-helpful_count', '-inserted_at')
-    else:
-        reviews_qs = reviews_qs.annotate(
-            user_has_liked=Exists(ReviewHelpfulness.objects.none())
         ).order_by('-helpful_count', '-inserted_at')
 
     # Top 5 most helpful reviews
@@ -152,11 +148,20 @@ def all_reviews(request, book_id):
     moderator = is_moderator(request.user)
 
     if request.user.is_authenticated:
-        current_user_review = Review.objects.filter(book=book, user=request.user).first()
+        current_user_review = Review.objects.filter(book_id=book_id, user=request.user).select_related('user').first()
     else:
         current_user_review = None
 
-    reviews = Review.objects.filter(book=book).order_by('-helpful_count', '-inserted_at')
+    reviews = Review.objects.filter(book_id=book_id).select_related('user').order_by('-helpful_count', '-inserted_at')
+
+    if request.user.is_authenticated:
+        reviews = reviews.annotate(
+            user_has_liked=Exists(
+                ReviewHelpfulness.objects.filter(
+                    user=request.user,
+                    review_id=OuterRef("pk")
+            )
+        ))
 
     paginator = Paginator(reviews, 5)
 
@@ -165,7 +170,6 @@ def all_reviews(request, book_id):
 
     context = {
         'book': book, 
-        'reviews': reviews, 
         'current_user_review': current_user_review, 
         'page_obj': page_obj, 
         'moderator_logged': moderator
@@ -317,6 +321,7 @@ def book_search_suggestions(request):
 
 def _get_user_library(user, active_filter):
     entries = Library.objects.filter(user=user)
+
     if active_filter == "to_read":
         entries = entries.filter(reading_status="to_read")
     elif active_filter == "in_progress":
@@ -324,7 +329,7 @@ def _get_user_library(user, active_filter):
     elif active_filter == "finished":
         entries = entries.filter(reading_status="finished")
 
-    return entries
+    return entries.select_related('book').prefetch_related('book__authors').order_by('book__title')
 
 @login_required
 def library(request):
@@ -586,7 +591,7 @@ def top_rated(request):
     top_rated_key = 'home:top_rated:v1'
     top_rated_books_list = get_cached_results(top_rated_key)
 
-    qs = Book.objects.filter(id__in=[x['id'] for x in top_rated_books_list])
+    qs = Book.objects.filter(id__in=[x['id'] for x in top_rated_books_list]).prefetch_related('authors').order_by('-reviews_count')
 
     paginator = Paginator(qs, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -601,7 +606,7 @@ def best_authors(request):
     authors_key = 'home:popular_authors:v1'
     popular_authors = get_cached_results(authors_key)
 
-    qs = Book.objects.filter(authors__in=[x['id'] for x in popular_authors])
+    qs = Book.objects.filter(authors__in=[x['id'] for x in popular_authors]).prefetch_related('authors').order_by('-reviews_count')
 
     paginator = Paginator(qs, 12)
     page_obj = paginator.get_page(request.GET.get("page"))

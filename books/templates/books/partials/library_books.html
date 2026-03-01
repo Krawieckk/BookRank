@@ -15,7 +15,11 @@
                         {{ entry.book.title }}
                     </a>
                     <p class="text-gray-500 text-xs sm:text-sm mt-1 leading-snug">
-                        Authors: Angela C. Santomero, Traci Paige Johnson, Todd Kessler
+                        {% for author in entry.book.authors.all %}
+                            {{ author.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                            -
+                        {% endfor %}
                     </p>
                 </div>
             </div>
