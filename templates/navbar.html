@@ -74,13 +74,13 @@
         <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'top_rated' %}">Top rated</a></li>
         <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'best_authors' %}">Best authors</a></li>
         <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2 font-semibold" href="{% url 'explore' %}">Explore</a></li>
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'library' %}">Library</a></li>
-        <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'settings' %}">Settings</a></li>
 
 
         {% if user.is_authenticated %}
           <li class="w-full text-center py-2">
-            <a href="{% url 'logout' %}" class="text-red-400">Logout</a>
+            <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'library' %}">Library</a></li>
+            <li class="w-full pt-1 pb-2"><a class="block w-full h-full border-b-1 border-[#4e657a] p-2" href="{% url 'settings' %}">Settings</a></li>
+            <li class="w-full pt-1 pb-2"><a href="{% url 'logout' %}" class="text-red-400">Logout</a></li>
           </li>
         {% else %}
           <li><a class="block px-3 py-2" href="{% url 'register' %}">Sign in / Sign up</a></li>

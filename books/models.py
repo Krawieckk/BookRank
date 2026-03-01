@@ -33,7 +33,7 @@ class Book(models.Model):
         blank=True,
         default='default_book.png'
     )
-    info_link = models.CharField(max_length=300, blank=True, null=True)
+    info_link = models.CharField(max_length=400, blank=True, null=True)
     summary_generated = models.BooleanField(default=False)
     allow_summary = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)

@@ -38,7 +38,7 @@ class Command(BaseCommand):
         parser.add_argument("csv_path", type=str, help="Path to reviews CSV")
         parser.add_argument("--encoding", type=str, default="utf-8")
         parser.add_argument("--system-username", type=str, default="system")
-        parser.add_argument("--batch-size", type=int, default=20000)
+        parser.add_argument("--batch-size", type=int, default=1000)
         parser.add_argument("--progress-every", type=int, default=50000)
         parser.add_argument(
             "--reset-system-reviews",
