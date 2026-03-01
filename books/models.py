@@ -25,18 +25,18 @@ class Publisher(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=150)    
     description = models.TextField(blank=True, null=True)
-    publication_year = models.IntegerField(blank=True, null=True)
-    average_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
-    reviews_count = models.IntegerField(default=0)
+    publication_year = models.IntegerField(blank=True, null=True, db_index=True)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True, db_index=True)
+    reviews_count = models.IntegerField(default=0, db_index=True)
     cover_image = models.ImageField(
         upload_to='covers/', 
         blank=True,
         default='default_book.png'
     )
     info_link = models.CharField(max_length=400, blank=True, null=True)
-    summary_generated = models.BooleanField(default=False)
+    summary_generated = models.BooleanField(default=False, db_index=True)
     allow_summary = models.BooleanField(default=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -47,7 +47,8 @@ class Book(models.Model):
                                   related_name='book_publisher', 
                                   blank=True, 
                                   null=True, 
-                                  on_delete=models.SET_NULL)
+                                  on_delete=models.SET_NULL, 
+                                  db_index=True)
 
     def __str__(self):
         return self.title
@@ -70,6 +71,11 @@ class Review(models.Model):
 
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['book', '-helpful_count', '-inserted_at'])
+        ]
 
     def __str__(self):
         return f'{self.user} [{self.rating}] -> {self.book}'
@@ -94,11 +100,10 @@ class ReviewHelpfulness(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["user", "review"], name="uniq_user_review_helpful")
+            models.UniqueConstraint(fields=['user', 'review'], name='unique_user_review_helpful')
         ]
         indexes = [
-            models.Index(fields=['review']), 
-            models.Index(fields=['user'])
+            models.Index(fields=['review', 'user'])
         ]
 
     def __str__(self):
