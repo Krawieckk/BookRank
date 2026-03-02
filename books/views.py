@@ -652,6 +652,12 @@ def moderator_delete_and_block_summary(request, book_id):
 
 @require_POST
 @user_passes_test(is_moderator)
+def moderator_block_summary(request, book_id):
+    Book.objects.filter(id=book_id).update(allow_summary=False)
+    return redirect("book_page", pk=book_id)
+
+@require_POST
+@user_passes_test(is_moderator)
 def moderator_allow_summary(request, book_id):
     Book.objects.filter(id=book_id).update(allow_summary=True)
     return redirect("book_page", pk=book_id)
