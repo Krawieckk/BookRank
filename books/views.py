@@ -392,7 +392,7 @@ SORT_MAP = {
 def explore(request):
     qs = (
         Book.objects
-        .prefetch_related("authors", "tags")
+        .prefetch_related("authors").select_related('publisher')
         .filter(is_active=True)
     )
 
@@ -412,46 +412,26 @@ def explore(request):
     popular_tags = get_cached_results(tags_key)
     popular_publishers = get_cached_results(publishers_key)
 
-    selected_authors_qs = Author.objects.filter(id__in=selected_authors)
-    selected_tags_qs = Tag.objects.filter(id__in=selected_tags)
-    selected_publishers_qs = Publisher.objects.filter(id__in=selected_publishers)
+    base_authors_qs = Author.objects.filter(id__in=[x['id'] for x in popular_authors]).only('id', 'name')
+    base_tags_qs = Tag.objects.filter(id__in=[x['id'] for x in popular_tags]).only('id', 'name')
+    base_publishers_qs = Publisher.objects.filter(id__in=[x['id'] for x in popular_publishers]).only('id', 'publisher_name')
 
-    base_authors_qs = Author.objects.filter(id__in=[x['id'] for x in popular_authors])
-    authors_qs = (base_authors_qs | selected_authors_qs).distinct()
-
-    base_tags_qs = Tag.objects.filter(id__in=[x['id'] for x in popular_tags])
-    tags_qs = (base_tags_qs | selected_tags_qs).distinct()
-
-    base_publishers_qs = Publisher.objects.filter(id__in=[x['id'] for x in popular_publishers])
-    publishers_qs = (base_publishers_qs | selected_publishers_qs).distinct().order_by('publisher_name')
-
-    selcted_authors_map = {
-        a.id: a.name
-        for a in Author.objects.filter(id__in=selected_authors_qs)
-    }
-
-    selected_tags_map = {
-        t.id: t.name
-        for t in Tag.objects.filter(id__in=selected_tags_qs)
-    }
-    
-    selected_publishers_map = {
-        p.id: p.publisher_name
-        for p in Publisher.objects.filter(id__in=selected_publishers_qs)
-    }
+    selected_authors_map = dict(Author.objects.filter(id__in=selected_authors).values_list('id', 'name'))
+    selected_tags_map = dict(Tag.objects.filter(id__in=selected_tags).values_list('id', 'name'))
+    selected_publishers_map = dict(Publisher.objects.filter(id__in=selected_publishers).values_list('id', 'publisher_name'))
 
     selected_filters_count = len(selected_authors) + len(selected_tags) + len(selected_publishers)
 
     sort = request.GET.get("sort", "rating_desc")
 
     if selected_authors:
-        qs = qs.filter(authors__id__in=selected_authors).distinct()
+        qs = qs.filter(authors__id__in=selected_authors)
 
     if selected_tags:
-        qs = qs.filter(tags__id__in=selected_tags).distinct()
+        qs = qs.filter(tags__id__in=selected_tags)
 
     if selected_publishers:
-        qs = qs.filter(publisher_id__in=selected_publishers).distinct()
+        qs = qs.filter(publisher_id__in=selected_publishers)
 
     if min_published_year:
         qs = qs.filter(Q(publication_year__gte=int(min_published_year)))
@@ -475,14 +455,14 @@ def explore(request):
         "page_obj": page_obj,
         "sort": sort,
         "selected_authors": selected_authors,
-        "selected_authors_map": selcted_authors_map, 
+        "selected_authors_map": selected_authors_map, 
         "selected_tags": selected_tags,
         "selected_tags_map": selected_tags_map,
         "selected_publishers": selected_publishers, 
         "selected_publishers_map": selected_publishers_map, 
-        "authors": authors_qs,
-        "tags": tags_qs,
-        "publishers": publishers_qs,
+        "authors": base_authors_qs,
+        "tags": base_tags_qs,
+        "publishers": base_publishers_qs,
         "selected_filters_count": selected_filters_count, 
         "min_published_year": min_published_year, 
         "max_published_year": max_published_year, 
