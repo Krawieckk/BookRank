@@ -119,6 +119,7 @@ class Command(BaseCommand):
                         rating=rating,
                         review_text=review_text,
                         is_active=True,
+                        is_imported=True
                     )
                 )
                 created_reviews += 1

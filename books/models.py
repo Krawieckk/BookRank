@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 # Create your models here.
 class Author(models.Model):
@@ -68,6 +69,7 @@ class Review(models.Model):
     inserted_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     helpful_count = models.PositiveIntegerField(default=0, db_index=True)
+    is_imported = models.BooleanField(default=False, db_index=True)
 
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
@@ -75,6 +77,14 @@ class Review(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['book', '-helpful_count', '-inserted_at'])
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=['book', 'user'], 
+                condition=Q(is_imported=False), 
+                name='uniq_user_review_except_imported'
+            )
         ]
 
     def __str__(self):
