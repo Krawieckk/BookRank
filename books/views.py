@@ -620,6 +620,7 @@ def best_authors(request):
 def is_moderator(user):
     return user.groups.filter(name='Moderator').exists()
 
+@require_POST
 @user_passes_test(is_moderator)
 def generate_summary(request, book_id):
     book = get_object_or_404(Book, pk=book_id)

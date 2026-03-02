@@ -1,46 +1,70 @@
 {% if moderator_logged %}
 <div class="w-full flex flex-col border-1 border-[#e67067] mb-6 text-black">
-    <div class="w-full bg-[#e67067] text-white font-semibold text-center lg:text-left text-sm px-3">
-        <h3 class="py-1 md:py-2">Moderator panel</h3>
+  <div class="w-full bg-[#e67067] text-white font-semibold text-center lg:text-left text-sm px-3">
+    <h3 class="py-1 md:py-2">Moderator panel</h3>
+  </div>
+
+  {% if summary_is_generating %}
+    <div class="w-full items-center flex gap-3 pt-3">
+      <p class="text-xs md:text-sm px-3">Summary is being generated</p>
+      <a href="{% url 'book_page' book.id %}"
+         class="px-2 py-1 md:py-2 text-xs border-b-1 border-[#f8f9fa] font-semibold">Reload the page</a>
     </div>
-    {% if summary_is_generating %}
-        <div class="w-full items-center flex gap-3 pt-3">
-        <p class="text-xs md:text-sm px-3">Summary is being generated</p>
-        <a href="{% url 'book_page' book.id %}"
-            class="px-2 py-1 md:py-2 text-xs border-b-1 border-[#f8f9fa] font-semibold">Reload the page</a>
-        </div>
-    {% else %}
-    <div class="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 py-3 text-xs 
-                text-black px-2 text-center font-semibold truncate border-b-1 border-[#e67067]">
-        {% if book.summary_generated %}
-            <a href="{% url 'moderator_delete_summary' book.id %}"
-                class="px-1 py-1 md:py-2 border-b-1 border-[#dc3545]">Delete summary</a>
-            <a href="{% url 'moderator_delete_and_block_summary' book.id %}"
-            class="px-1 py-1 md:py-2 border-b-1 border-[#dc3545]">Delete and block summary</a>
-        {% endif %}
+  {% else %}
 
-        {% if not summary_is_generating %}
-            {% if book.reviews_count >= 30 and book.allow_summary and not book.summary_generated %}
-                <a href="{% url 'generate_summary' book.id %}"
-                    class="px-1 py-1 md:py-2 border-b-1 border-[#007bff]">Generate summary</a>
-            {% endif %}
+  <div class="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 py-3 text-xs px-2 text-center font-semibold truncate border-b-1 border-[#e67067]">
 
-            {% if book.reviews_count >= 30 and book.allow_summary and book.summary_generated %}
-            <a href="{% url 'generate_summary' book.id %}" 
-                class="px-1 py-1 md:py-2 border-b-1 border-[#007bff]">Generate new summary</a>
-            {% endif %}
-        {% endif %}
+    {% if book.summary_generated %}
+      <form method="post" action="{% url 'moderator_delete_summary' book.id %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#dc3545]">
+          Delete summary
+        </button>
+      </form>
 
-
-        {% if book.allow_summary %}
-        <a href="{% url 'moderator_block_summary' book.id %}"
-           class="px-1 py-1 md:py-2 border-b-1 border-[#6c757d]">Block summary</a>
-        {% else %}
-        <a href="{% url 'moderator_allow_summary' book.id %}"
-           class="px-1 py-1 md:py-2 border-b-1 border-[#6c757d]">Allow summary</a>
-        {% endif %}
-    </div>
+      <form method="post" action="{% url 'moderator_delete_and_block_summary' book.id %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#dc3545]">
+          Delete and block summary
+        </button>
+      </form>
     {% endif %}
 
+    {% if book.reviews_count >= 30 and book.allow_summary %}
+      {% if not book.summary_generated %}
+        <form method="post" action="{% url 'generate_summary' book.id %}">
+          {% csrf_token %}
+          <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#007bff]">
+            Generate summary
+          </button>
+        </form>
+      {% else %}
+        <form method="post" action="{% url 'generate_summary' book.id %}">
+          {% csrf_token %}
+          <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#007bff]">
+            Generate new summary
+          </button>
+        </form>
+      {% endif %}
+    {% endif %}
+
+    {% if book.allow_summary %}
+      <form method="post" action="{% url 'moderator_block_summary' book.id %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#6c757d]">
+          Block summary
+        </button>
+      </form>
+    {% else %}
+      <form method="post" action="{% url 'moderator_allow_summary' book.id %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#6c757d]">
+          Allow summary
+        </button>
+      </form>
+    {% endif %}
+
+  </div>
+  {% endif %}
 </div>
 {% endif %}
