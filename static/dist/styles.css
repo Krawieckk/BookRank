@@ -704,8 +704,20 @@
   .border-\[\#4e657a\] {
     border-color: #4e657a;
   }
+  .border-\[\#6c757d\] {
+    border-color: #6c757d;
+  }
+  .border-\[\#007bff\] {
+    border-color: #007bff;
+  }
+  .border-\[\#dc3545\] {
+    border-color: #dc3545;
+  }
   .border-\[\#e67067\] {
     border-color: #e67067;
+  }
+  .border-\[\#f8f9fa\] {
+    border-color: #f8f9fa;
   }
   .border-black {
     border-color: var(--color-black);

@@ -634,49 +634,31 @@ def generate_summary(request, book_id):
 
     return redirect("book_page", pk=book_id)
 
+@require_POST
 @user_passes_test(is_moderator)
 def moderator_delete_summary(request, book_id):
-    o = get_object_or_404(ReviewSummary, book_id=book_id)
-    o.delete()
+    ReviewSummary.objects.filter(book_id=book_id).delete()
+    Book.objects.filter(id=book_id).update(summary_generated=False)
 
-    book = Book.objects.select_for_update().get(id=book_id)
-    book.summary_generated = False
-    book.save(update_fields=["summary_generated"])
+    return redirect("book_page", pk=book_id)
 
-    return redirect('book_page', pk=book_id)
-
+@require_POST
 @user_passes_test(is_moderator)
 def moderator_delete_and_block_summary(request, book_id):
-    o = get_object_or_404(ReviewSummary, book_id=book_id)
-    o.delete()
+    ReviewSummary.objects.filter(book_id=book_id).delete()
+    Book.objects.filter(id=book_id).update(allow_summary=False, summary_generated=False)
 
-    book = Book.objects.select_for_update().get(id=book_id)
-    book.allow_summary = False
-    book.summary_generated = False
-    book.save(update_fields=["allow_summary", "summary_generated"])
+    return redirect("book_page", pk=book_id)
 
-    return redirect('book_page', pk=book_id)
-
+@require_POST
 @user_passes_test(is_moderator)
-def moderator_block_summary(request, book_id):
-    book = Book.objects.select_for_update().get(id=book_id)
-    book.allow_summary = False
-    book.save(update_fields=['allow_summary'])
-
-    return redirect('book_page', pk=book_id)
-
 def moderator_allow_summary(request, book_id):
-    book = Book.objects.select_for_update().get(id=book_id)
-    book.allow_summary = True
-    book.save(update_fields=['allow_summary'])
-
-    return redirect('book_page', pk=book_id)
+    Book.objects.filter(id=book_id).update(allow_summary=True)
+    return redirect("book_page", pk=book_id)
 
 
+@require_POST
 @user_passes_test(is_moderator)
 def moderator_delete_review(request, review_id):
-    with transaction.atomic():
-        review = Review.objects.select_for_update().get(id=review_id)
-        review.delete()
-
-    return render(request, 'books/partials/all_user_reviews.html')
+    Review.objects.filter(id=review_id).delete()
+    return render(request, "books/partials/all_user_reviews.html")
