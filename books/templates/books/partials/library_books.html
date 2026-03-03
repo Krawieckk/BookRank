@@ -30,7 +30,7 @@
                     <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='to_read' %}?filter={{ active_filter }}"
                             hx-target="#library-content"
                             hx-swap="innerHTML"
-                            hx-trigger="click throttle:1000ms"
+                            hx-disabled-elt="this"
                             class="w-24 sm:w-32 px-1 sm:px-2 py-2 text-[10px] sm:text-sm font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'to_read' %}bg-slate-800 text-white active{% endif %}">
                         To read
                     </button>
@@ -38,7 +38,7 @@
                     <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='in_progress' %}?filter={{ active_filter }}"
                             hx-target="#library-content"
                             hx-swap="innerHTML"
-                            hx-trigger="click throttle:1000ms"
+                            hx-disabled-elt="this"
                             class="w-24 sm:w-32 px-1 sm:px-2 py-2 text-[10px] sm:text-sm font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'in_progress' %}bg-slate-800 text-white active{% endif %}">
                         In progress
                     </button>
@@ -46,7 +46,7 @@
                     <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='finished' %}?filter={{ active_filter }}"
                             hx-target="#library-content"
                             hx-swap="innerHTML"
-                            hx-trigger="click throttle:1000ms"
+                            hx-disabled-elt="this"
                             class="w-24 sm:w-32 px-1 sm:px-2 py-2 text-[10px] sm:text-sm font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'finished' %}bg-slate-800 text-white active{% endif %}">
                         Finished
                     </button>

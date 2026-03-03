@@ -7,6 +7,7 @@
         hx-post="{% url 'add_review' book.id %}"
         hx-target="#review-form-slot"
         hx-swap="innerHTML"
+        hx-disabled-elt="this"
         class="mt-3 space-y-4"
         >
         {% csrf_token %}

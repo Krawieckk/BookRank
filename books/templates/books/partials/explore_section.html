@@ -36,7 +36,9 @@
               hx-get="{% url 'explore' %}"
               hx-target="#exploreMain"
               hx-push-url="true"
-              hx-trigger="change delay:150ms, submit">
+              hx-trigger="change delay:150ms, submit"
+              hx-disabled-elt="this">
+              
           <input type="hidden" name="sort" value="{{ sort }}"/>
 
             <!-- AUTHORS -->

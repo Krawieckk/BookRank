@@ -4,6 +4,7 @@
       hx-post="{% url 'update_profile_picture' %}"
       hx-target="#profile-picture-change-form"
       hx-swap="innerHTML"
+      hx-disabled-elt="this"
       class="flex flex-col w-full gap-4 text-sm pb-6">
 
   {% csrf_token %}
