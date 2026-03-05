@@ -5,6 +5,9 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Avg, OuterRef, Subquery, DecimalField, Value, Q, Count, IntegerField
+from django.db.models.functions import Coalesce, Cast
+from decimal import Decimal
 
 from books.models import Book, Review
 
@@ -36,10 +39,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("csv_path", type=str, help="Path to reviews CSV")
-        parser.add_argument("--encoding", type=str, default="utf-8")
-        parser.add_argument("--system-username", type=str, default="system")
-        parser.add_argument("--batch-size", type=int, default=1000)
-        parser.add_argument("--progress-every", type=int, default=50000)
         parser.add_argument(
             "--reset-system-reviews",
             action="store_true",
@@ -51,10 +50,10 @@ class Command(BaseCommand):
         if not csv_path.exists():
             raise CommandError(f"The file doesn't exist: {csv_path}")
 
-        encoding = options["encoding"]
-        system_username = options["system_username"]
-        batch_size = options["batch_size"]
-        progress_every = options["progress_every"]
+        encoding = 'utf-8'
+        system_username = 'system'
+        batch_size = 2000
+        progress_every = 50000
         reset_system_reviews = options["reset_system_reviews"]
 
         User = get_user_model()
@@ -83,7 +82,6 @@ class Command(BaseCommand):
         rows_processed = 0
 
         buffer = []
-        start = time.time()
 
         with csv_path.open("r", encoding=encoding, newline="") as f:
             reader = csv.DictReader(f)
@@ -146,3 +144,41 @@ class Command(BaseCommand):
             f"- Reviews inserted: {created_reviews:,}\n"
             f"- Skipped (book not found): {skipped_book_not_found:,}\n"
         ))
+        
+        self.stdout.write("Updating data regarding books...")
+
+        review_filter = Q(book_id=OuterRef("pk"))
+
+        avg_sq = (
+            Review.objects
+            .filter(review_filter)
+            .values("book_id")
+            .annotate(a=Avg("rating"))
+            .values("a")
+        )
+        
+        avg_subquery = Cast(
+            Subquery(avg_sq),
+            output_field=DecimalField(max_digits=3, decimal_places=2),
+        )
+
+        reviews_count_sq = (
+            Review.objects
+            .filter(book_id=OuterRef("pk"))
+            .values("book_id")
+            .annotate(c=Count("*"))
+            .values("c")
+        )
+
+        Book.objects.update(
+            average_rating=Coalesce(
+                avg_subquery,
+                Value(Decimal("0.00"), output_field=DecimalField(max_digits=3, decimal_places=2)),
+            ), 
+            reviews_count=Coalesce(
+                Subquery(reviews_count_sq, output_field=IntegerField()),
+                Value(0)
+            )
+        )
+
+        self.stdout.write(self.style.SUCCESS("Data regarding books updated successfully."))

@@ -1,0 +1,85 @@
+
+<div class="space-y-6 w-full max-w-[1000px]">
+  
+  {% for entry in user_library %}
+
+    <article class="flex flex-col sm:flex-row gap-5 border-b-1 border-slate-300 hover:bg-slate-50 pb-5">
+      <a href="{% url 'book_page' entry.book.id %}" class="block w-full flex gap-5 hover:bg-slate-50">
+        <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden border border-slate-200 bg-slate-50 ">
+        {% if entry.book.cover_image %}
+          <img src="{{ entry.book.cover_image.url }}" 
+               alt="cover image of: {{ entry.book.title|truncatewords:10 }}..."
+               class="h-full w-full object-fit loading">
+        {% endif %}
+      </div>
+      
+
+      <div class="flex w-full flex-col lg:flex-row items-start lg:items-center justify-between">
+        <div class="h-full flex flex-col items-start justify-center w-full md:w-[75%]">
+            <h2 class=" text-sm md:text-base font-semibold text-slate-900">
+              {{ entry.book.title|truncatewords:14 }}
+            </h2>
+
+          <p class="mt-1 text-xs lg:text-sm text-slate-600">
+            Author:
+            {% for a in entry.book.authors.all %}
+              {{ a.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+              -
+            {% endfor %}
+          </p>
+
+          <p class="mt-1 text-xs lg:text-sm text-slate-600">
+            Average rating:
+            {% if entry.book.average_rating %}
+              {{ entry.book.average_rating }} out of 5.0
+            {% else %}
+              -
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      </a>
+
+    <div class="flex flex-col items-center gap-2 flex-shrink-0 w-full justify-center sm:w-max">
+    
+        <div class="flex flex-wrap sm:flex-col gap-2 flex-grow sm:flex-grow-0 ml-12">
+            <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='to_read' %}?filter={{ active_filter }}"
+                    hx-target="#library-content"
+                    hx-swap="innerHTML"
+                    hx-disabled-elt="this"
+                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'to_read' %}bg-slate-800 text-white active font-semibold{% else %}bg-white{% endif %}">
+                To read
+            </button>
+            
+            <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='in_progress' %}?filter={{ active_filter }}"
+                    hx-target="#library-content"
+                    hx-swap="innerHTML"
+                    hx-disabled-elt="this"
+                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'in_progress' %}bg-slate-800 text-white active font-semibold{% else %}bg-white{% endif %}">
+                In progress
+            </button>
+
+            <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='finished' %}?filter={{ active_filter }}"
+                    hx-target="#library-content"
+                    hx-swap="innerHTML"
+                    hx-disabled-elt="this"
+                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'finished' %}bg-slate-800 text-white active font-semibold{% else %}bg-white{% endif %}">
+                Finished
+            </button>
+        </div>
+
+        <button hx-post="{% url 'delete_from_library' entry_id=entry.id %}?filter={{ active_filter }}"
+                hx-target="#library-content"
+                hx-swap="innerHTML"
+                hx-confirm="Are you sure you want to delete '{{entry.book.title}}' from your library?"
+                class="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1">
+            Delete
+        </button>
+    </div>
+    </article>
+    </a>
+  {% empty %}
+    <p class="text-sm text-slate-600">No results</p>
+  {% endfor %}
+</div>

@@ -70,22 +70,11 @@ def clamp(value, max_len: int):
     return s
 
 
-def chunks(seq, size):
-    for i in range(0, len(seq), size):
-        yield seq[i:i + size]
-
-
-# ---------- command ----------
-
 class Command(BaseCommand):
     help = "Import books from CSV using bulk_create (fast; Postgres-friendly)."
 
     def add_arguments(self, parser):
         parser.add_argument("csv_path", type=str, help="Path to books CSV")
-        parser.add_argument("--encoding", type=str, default="utf-8")
-        parser.add_argument("--batch-size", type=int, default=2000)
-        parser.add_argument("--progress-every", type=int, default=2000)
-
         parser.add_argument("--reset", action="store_true")
         parser.add_argument("--reset-authors-tags", action="store_true")
 
@@ -100,9 +89,9 @@ class Command(BaseCommand):
         if not csv_path.exists():
             raise CommandError(f"The file doesn't exist: {csv_path}")
 
-        encoding = options["encoding"]
-        batch_size = options["batch_size"]
-        progress_every = options["progress_every"]
+        encoding = 'utf-8'
+        batch_size = 2000
+        progress_every = 2000
         do_reset = options["reset"]
         reset_authors_tags = options["reset_authors_tags"]
 
@@ -133,26 +122,20 @@ class Command(BaseCommand):
                         Tag.objects.all().delete()
                         Publisher.objects.all().delete()
 
-        # caches from DB
         existing_books = dict(Book.objects.values_list("title", "id"))
         author_cache = {name.casefold(): a_id for a_id, name in Author.objects.values_list("id", "name") if name}
         tag_cache = {name.casefold(): t_id for t_id, name in Tag.objects.values_list("id", "name") if name}
         publisher_cache = {name.casefold(): p_id for p_id, name in Publisher.objects.values_list("id", "publisher_name") if name}
 
-        # We’ll collect:
-        # - pending books data
-        # - needed publishers/authors/tags (names)
-        # - m2m edges by book_title -> list of names (temporary), then convert to ids later
         pending_books = []
-        book_to_authors = defaultdict(list)  # title -> [author_name...]
-        book_to_tags = defaultdict(list)     # title -> [tag_name...]
+        book_to_authors = defaultdict(list)
+        book_to_tags = defaultdict(list)
         needed_publishers = set()
         needed_authors = set()
         needed_tags = set()
 
         rows_processed = 0
 
-        # ---------- read CSV, build in-memory plan ----------
         with csv_path.open("r", encoding=encoding, newline="") as f:
             reader = csv.DictReader(f)
             required = {"Title", "description", "authors", "publishedDate", "infoLink", "categories"}
@@ -167,7 +150,7 @@ class Command(BaseCommand):
                 if not title:
                     continue
                 if title in existing_books:
-                    continue  # already imported
+                    continue 
 
                 description = (row.get("description") or "").strip() or None
                 publication_year = parse_year(row.get("publishedDate"))
@@ -193,7 +176,7 @@ class Command(BaseCommand):
                     "title": title,
                     "description": description,
                     "publication_year": publication_year,
-                    "publisher_name": publisher_name,  # temporarily by name
+                    "publisher_name": publisher_name,
                     "info_link": info_link,
                 })
 
@@ -203,18 +186,16 @@ class Command(BaseCommand):
         if not pending_books:
             self.stdout.write(self.style.SUCCESS("Nothing to import (no new books)."))
             return
-
-        # ---------- execute import in one transaction ----------
+        
         created_books = 0
         created_m2m_authors = 0
         created_m2m_tags = 0
 
-        # Through models for M2M
         BookAuthor = Book.authors.through
         BookTag = Book.tags.through
 
         with transaction.atomic():
-            # 1) Publishers bulk
+            # Publishers
             new_publishers = []
             for name in needed_publishers:
                 k = name.casefold()
@@ -223,10 +204,9 @@ class Command(BaseCommand):
 
             if new_publishers:
                 Publisher.objects.bulk_create(new_publishers, batch_size=batch_size, ignore_conflicts=True)
-                # refresh cache for created/known
                 publisher_cache = {name.casefold(): p_id for p_id, name in Publisher.objects.values_list("id", "publisher_name") if name}
 
-            # 2) Authors bulk
+            # Authors
             new_authors = []
             for name in needed_authors:
                 k = name.casefold()
@@ -237,7 +217,7 @@ class Command(BaseCommand):
                 Author.objects.bulk_create(new_authors, batch_size=batch_size, ignore_conflicts=True)
                 author_cache = {name.casefold(): a_id for a_id, name in Author.objects.values_list("id", "name") if name}
 
-            # 3) Tags bulk
+            # Tags
             new_tags = []
             for name in needed_tags:
                 k = name.casefold()
@@ -266,23 +246,17 @@ class Command(BaseCommand):
                     )
                 )
 
-            # If you have a DB UNIQUE constraint on title, ignore_conflicts=True is safe.
-            # If you DON'T have unique constraint, ignore_conflicts won't help with duplicates.
             Book.objects.bulk_create(new_book_objs, batch_size=batch_size, ignore_conflicts=True)
 
-            # refresh book ids for titles we just inserted
-            # (we query only the titles we intended to insert to keep it lighter)
             inserted_titles = [b["title"] for b in pending_books]
             title_to_id = dict(Book.objects.filter(title__in=inserted_titles).values_list("title", "id"))
             created_books = len(title_to_id)
 
-            # 5) M2M bulk - Authors
             book_author_links = []
             for title, author_names in book_to_authors.items():
                 book_id = title_to_id.get(title)
                 if not book_id:
                     continue
-                # de-dup per book
                 seen = set()
                 for name in author_names:
                     k = name.casefold()
@@ -299,11 +273,10 @@ class Command(BaseCommand):
                 BookAuthor.objects.bulk_create(
                     book_author_links,
                     batch_size=batch_size,
-                    ignore_conflicts=True,  # requires unique constraint on through-table pairs (Django usually makes it)
+                    ignore_conflicts=True,
                 )
                 created_m2m_authors = len(book_author_links)
 
-            # 6) M2M bulk - Tags
             book_tag_links = []
             for title, tag_names in book_to_tags.items():
                 book_id = title_to_id.get(title)
