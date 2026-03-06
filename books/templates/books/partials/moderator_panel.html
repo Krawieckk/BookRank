@@ -1,30 +1,30 @@
 {% if moderator_logged %}
-<div class="w-full flex flex-col border-1 border-[#e67067] mb-6 text-black">
-  <div class="w-full bg-[#e67067] text-white font-semibold text-center lg:text-left text-sm px-3">
-    <h3 class="py-1 md:py-2">Moderator panel</h3>
+<div class="w-full flex flex-col border-1 border-[#2e4052] mb-6 text-black">
+  <div class="w-full bg-[#2e4052] text-white font-semibold text-center lg:text-left text-sm px-3">
+    <h3 class="py-2">Moderator panel</h3>
   </div>
 
   {% if summary_is_generating %}
-    <div class="w-full items-center flex gap-3 pt-3">
-      <p class="text-xs md:text-sm px-3">Summary is being generated</p>
+    <div class="w-full items-center flex gap-3 py-3">
+      <p class="text-xs md:text-sm px-3 font-semibold">Summary is being generated</p>
       <a href="{% url 'book_page' book.id %}"
-         class="px-2 py-1 md:py-2 text-xs border-b-1 border-[#f8f9fa] font-semibold">Reload the page</a>
+         class="px-2 py-1 md:py-2 text-xs border-b-1 border-[#2e4052] font-semibold hover:bg-gray-100 transition-colors">Reload the page</a>
     </div>
   {% else %}
 
-  <div class="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 py-3 text-xs px-2 text-center font-semibold truncate border-b-1 border-[#e67067]">
+  <div class="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3 py-3 text-xs px-2 text-center font-semibold truncate border-b-1 border-[#2e4052]">
 
     {% if book.summary_generated %}
       <form method="post" action="{% url 'moderator_delete_summary' book.id %}">
         {% csrf_token %}
-        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#dc3545] cursor-pointer">
+        <button type="submit" class="w-full px-1 py-2 border-b-1 bg-[#dc3545] text-white cursor-pointer">
           Delete summary
         </button>
       </form>
 
       <form method="post" action="{% url 'moderator_delete_and_block_summary' book.id %}">
         {% csrf_token %}
-        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#dc3545] cursor-pointer">
+        <button type="submit" class="w-full px-1 py-2 border-b-1 bg-[#dc3545] text-white cursor-pointer">
           Delete and block summary
         </button>
       </form>
@@ -34,14 +34,14 @@
       {% if not book.summary_generated %}
         <form method="post" action="{% url 'generate_summary' book.id %}">
           {% csrf_token %}
-          <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#007bff] cursor-pointer">
+          <button type="submit" class="w-full px-1 py-2 border-b-1 bg-[#007bff] text-white cursor-pointer">
             Generate summary
           </button>
         </form>
       {% else %}
         <form method="post" action="{% url 'generate_summary' book.id %}">
           {% csrf_token %}
-          <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#007bff] cursor-pointer">
+          <button type="submit" class="w-full px-1 py-2 border-b-1 bg-[#007bff] text-white cursor-pointer">
             Generate new summary
           </button>
         </form>
@@ -51,14 +51,14 @@
     {% if book.allow_summary %}
       <form method="post" action="{% url 'moderator_block_summary' book.id %}">
         {% csrf_token %}
-        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#6c757d] cursor-pointer">
+        <button type="submit" class="w-full px-1 py-2 border-b-1 bg-[#6c757d] text-white cursor-pointer">
           Block summary
         </button>
       </form>
     {% else %}
       <form method="post" action="{% url 'moderator_allow_summary' book.id %}">
         {% csrf_token %}
-        <button type="submit" class="w-full px-1 py-1 md:py-2 border-b-1 border-[#6c757d] cursor-pointer">
+        <button type="submit" class="w-full px-1 py-2 border-b-1 bg-[#6c757d] text-white cursor-pointer">
           Allow summary
         </button>
       </form>

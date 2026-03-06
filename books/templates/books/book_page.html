@@ -45,7 +45,7 @@
             {% if book.tags.all %}
               <div class="flex flex-wrap justify-center md:justify-start gap-2">
                 {% for tag in book.tags.all %}
-                  <span class="inline-flex items-center bg-gray-100 px-2.5 py-1 text-xs ">
+                  <span class="inline-flex items-center bg-gray-100 px-2.5 py-1 text-xs rounded font-semibold">
                     {{ tag.name }}
                   </span>
                 {% endfor %}
