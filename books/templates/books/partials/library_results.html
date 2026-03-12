@@ -3,9 +3,9 @@
   
   {% for entry in user_library %}
 
-    <article class="flex flex-col sm:flex-row gap-5 border-b-1 border-slate-300 hover:bg-slate-50 pb-5">
-      <a href="{% url 'book_page' entry.book.id %}" class="block w-full flex gap-5 hover:bg-slate-50">
-        <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden border border-slate-200 bg-slate-50 ">
+    <article class="flex flex-col sm:flex-row gap-5 border-b-1 border-slate-300 pb-5">
+      <a href="{% url 'book_page' entry.book.id %}" class="block w-full flex gap-5 hover:bg-[#f3f4f6] sm:mr-12 transition-colors">
+        <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden border border-slate-200 bg-[#f3f4f6] ">
         {% if entry.book.cover_image %}
           <img src="{{ entry.book.cover_image.url }}" 
                alt="cover image of: {{ entry.book.title|truncatewords:10 }}..."
@@ -41,14 +41,14 @@
       </div>
       </a>
 
-    <div class="flex flex-col items-center gap-2 flex-shrink-0 w-full justify-center sm:w-max">
+    <div class="flex flex-col items-start sm:items-center gap-2 flex-shrink-0 w-full justify-center sm:w-max">
     
-        <div class="flex flex-wrap sm:flex-col gap-2 flex-grow sm:flex-grow-0 ml-12">
+        <div class="flex flex-wrap sm:flex-col gap-2 flex-grow sm:flex-grow-0">
             <button hx-post="{% url 'update_library_status' entry_id=entry.id new_status='to_read' %}?filter={{ active_filter }}"
                     hx-target="#library-content"
                     hx-swap="innerHTML"
                     hx-disabled-elt="this"
-                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'to_read' %}bg-slate-800 text-white active font-semibold{% else %}bg-white{% endif %}">
+                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-[#2e4052] transition-colors {% if entry.reading_status == 'to_read' %}bg-[#2e4052] text-white active{% else %}bg-white hover:bg-[#f3f4f6]{% endif %}">
                 To read
             </button>
             
@@ -56,7 +56,7 @@
                     hx-target="#library-content"
                     hx-swap="innerHTML"
                     hx-disabled-elt="this"
-                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'in_progress' %}bg-slate-800 text-white active font-semibold{% else %}bg-white{% endif %}">
+                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-[#2e4052] transition-colors {% if entry.reading_status == 'in_progress' %}bg-[#2e4052] text-white active{% else %}bg-white hover:bg-[#f3f4f6]{% endif %}">
                 In progress
             </button>
 
@@ -64,7 +64,7 @@
                     hx-target="#library-content"
                     hx-swap="innerHTML"
                     hx-disabled-elt="this"
-                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-slate-800 transition-colors {% if entry.reading_status == 'finished' %}bg-slate-800 text-white active font-semibold{% else %}bg-white{% endif %}">
+                    class="cursor-pointer w-20 md:w-28 px-1 sm:px-2 py-2 text-xs font-medium border border-[#2e4052] transition-colors {% if entry.reading_status == 'finished' %}bg-[#2e4052] text-white active{% else %}bg-white hover:bg-[#f3f4f6]{% endif %}">
                 Finished
             </button>
         </div>
@@ -73,7 +73,7 @@
                 hx-target="#library-content"
                 hx-swap="innerHTML"
                 hx-confirm="Are you sure you want to delete '{{entry.book.title}}' from your library?"
-                class="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1">
+                class="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1 cursor-pointer">
             Delete
         </button>
     </div>

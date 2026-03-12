@@ -13,9 +13,9 @@
 
     <div class="hidden sm:flex items-center gap-8">
       <ul class="flex items-center gap-8">
-        <li><a href="{% url 'top_rated' %}" class="hover:opacity-75">Top rated</a></li>
-        <li><a href="{% url 'best_authors' %}" class="hover:opacity-75">Best authors</a></li>
-        <li><a href="{% url 'explore' %}" class="hover:opacity-75">Explore</a></li>
+        <li><a href="{% url 'top_rated' %}" class="hover:opacity-75 transition-opacity">Top rated</a></li>
+        <li><a href="{% url 'best_authors' %}" class="hover:opacity-75 transition-opacity">Best authors</a></li>
+        <li><a href="{% url 'explore' %}" class="hover:opacity-75 transition-opacity">Explore</a></li>
 
         {% if user.is_authenticated %}
           <li class="relative">

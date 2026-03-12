@@ -84,8 +84,6 @@
 </div>
 
 </div>
-
-          
       <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div class="text-sm lg:text-base">
           Showing [<span class="font-medium">{{ page_obj.paginator.count|intcomma }}</span>] results
@@ -121,6 +119,6 @@
         </div>
       </div>
 
-      <div id="results">
+      <div id="results" class="">
         {% include "books/partials/_results.html" %}
       </div>

@@ -27,7 +27,7 @@
             hx-confirm="Are you sure you want to delete this review? {{ review.user }}: {{review.review_text}}"
             hx-swap="outerHTML"
             hx-disabled-elt="this"
-            class="text-red-600 border-b-1 border-[#e67067]">
+            class="text-red-600 border-b-1 border-[#e67067] cursor-pointer">
            Delete</button>
         {% endif %}
     </div>
@@ -49,7 +49,7 @@
 
             <button
             type="button"
-            class="review-toggle mt-2 text-xs lg:text-base  hover:text-gray-900 underline hidden"
+            class="review-toggle mt-2 text-xs lg:text-base  hover:text-gray-900 underline hidden cursor-pointer"
             aria-expanded="false"
             >
             Show more

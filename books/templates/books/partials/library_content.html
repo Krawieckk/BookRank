@@ -3,10 +3,10 @@
         <p class="text-center">Save books and track your reading progress</p>
 </section>
 
-<section class="w-full grid place-items-center grid-cols-2 gap-4 sm:flex sm:flex-row items-center text-sm sm:text-base sm:justify-evenly max-w-[320px] sm:max-w-[800px] filter-buttons">
+<section class="w-full grid place-items-center grid-cols-4 gap-1 sm:gap-4 sm:flex sm:flex-row items-center text-sm sm:text-base sm:justify-evenly max-w-[450px] sm:max-w-[650px] filter-buttons">
     {% include 'books/partials/library_filters.html' %}
 </section>
 
-<section id="book-list" class="w-full flex flex-col items-center justify-center">
+<section id="book-list" class="w-full flex flex-col items-center justify-center pt-4 mt-8">
      {% include 'books/partials/library_results.html' %}
 </section>

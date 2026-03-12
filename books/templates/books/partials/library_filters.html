@@ -4,25 +4,25 @@
         hx-swap="innerHTML"
         hx-push-url="true"
         hx-disabled-elt="this"
-        class="cursor-pointer text-xs md:text-sm w-24 sm:w-36 py-2 border {% if active_filter == 'all' %}bg-[#2e4052] text-white active{% endif %}">All</button>
+        class="cursor-pointer text-xs md:text-sm w-full sm:w-24 sm:w-30 py-2 border {% if active_filter == 'all' %}bg-[#2e4052] text-white active{% else %}hover:bg-[#f3f4f6] transition-colors{% endif %}">All</button>
 
 <button hx-get="{% url 'library' %}?filter=to_read" 
         hx-target="#library-content"
         hx-swap="innerHTML"
         hx-push-url="true" 
         hx-disabled-elt="this"
-        class="cursor-pointer text-xs md:text-sm w-24 sm:w-36 py-2 border {% if active_filter == 'to_read' %}bg-[#2e4052] text-white active{% endif %}">To read</button>
+        class="cursor-pointer text-xs md:text-sm w-full sm:w-24 sm:w-30 py-2 border {% if active_filter == 'to_read' %}bg-[#2e4052] text-white active{% else %}hover:bg-[#f3f4f6] transition-colors{% endif %}">To read</button>
 
 <button hx-get="{% url 'library' %}?filter=in_progress" 
         hx-target="#library-content"
         hx-swap="innerHTML"
         hx-push-url="true"
         hx-disabled-elt="this"
-        class="cursor-pointer text-xs md:text-sm w-24 sm:w-36 py-2 border {% if active_filter == 'in_progress' %}bg-[#2e4052] text-white active{% endif %}">In progress</button>
+        class="cursor-pointer text-xs md:text-sm w-full sm:w-24 sm:w-30 py-2 border {% if active_filter == 'in_progress' %}bg-[#2e4052] text-white active{% else %}hover:bg-[#f3f4f6] transition-colors{% endif %}">In progress</button>
 
 <button hx-get="{% url 'library' %}?filter=finished" 
         hx-target="#library-content"
         hx-swap="innerHTML"
         hx-push-url="true"
         hx-disabled-elt="this"
-        class="cursor-pointer text-xs md:text-sm w-24 sm:w-36 py-2 border {% if active_filter == 'finished' %}bg-[#2e4052] text-white active{% endif %}">Finished</button>
+        class="cursor-pointer text-xs md:text-sm w-full sm:w-24 sm:w-30 py-2 border {% if active_filter == 'finished' %}bg-[#2e4052] text-white active{% else %}hover:bg-[#f3f4f6] transition-colors{% endif %}">Finished</button>
