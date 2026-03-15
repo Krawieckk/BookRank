@@ -24,10 +24,16 @@ class Publisher(models.Model):
         return self.publisher_name
     
 class Book(models.Model):
-    title = models.CharField(max_length=150)    
+    title = models.CharField(max_length=255)    
     description = models.TextField(blank=True, null=True)
-    publication_year = models.IntegerField(blank=True, null=True, db_index=True)
-    average_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True, db_index=True)
+    publication_year = models.IntegerField(blank=True, 
+                                           null=True, 
+                                           db_index=True)
+    average_rating = models.DecimalField(max_digits=3, 
+                                         decimal_places=2, 
+                                         blank=True, 
+                                         null=True, 
+                                         db_index=True)
     reviews_count = models.IntegerField(default=0, db_index=True)
     cover_image = models.ImageField(
         upload_to='covers/', 
@@ -97,7 +103,9 @@ class ReviewSummary(models.Model):
     last_summarized_count = models.PositiveIntegerField(default=0)
     is_generating = models.BooleanField(default=False)
 
-    book = models.OneToOneField(Book, on_delete=models.CASCADE, related_name="review_summary")
+    book = models.OneToOneField(Book, 
+                                on_delete=models.CASCADE, 
+                                related_name="review_summary")
 
     def __str__(self):
         return f'{self.book} summary'

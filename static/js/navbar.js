@@ -41,13 +41,6 @@ if (profileToggle && profileMenu) {
     else openMenu();
     });
 
-    // close menu after clicking on the outside
-    document.addEventListener("click", (e) => {
-    const clickedInside =
-        profileMenu.contains(e.target) || profileToggle.contains(e.target);
-    if (!clickedInside) closeMenu();
-    });
-
     // close menu on ESC
     document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeMenu();

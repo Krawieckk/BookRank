@@ -56,8 +56,10 @@ def generate_review_summary_for_book(self, book_id: int):
             model="gpt-5",
             reasoning={"effort": "low"},
             instructions=(
-                "Podsumuj opinie o książce po angielsku (około 500 znaków), bez spoilerów. "
+                "Przygotuj po angielsku krótkie, zwięzłe podsumowanie opinii o książce, bez spoilerów."
+                "Długość: około 500 znaków."
                 "Uwzględnij główne plusy/minusy i ogólny odbiór. Nie cytuj dosłownie."
+                "Odpowiedź ma być wyłącznie plain text, bez nagłówków, list, cytatów i dodatkowych objaśnień."
             ),
             input=f"Tytuł: {Book.objects.get(pk=book_id).title}\n\nRecenzje:\n{input_text}",
         )

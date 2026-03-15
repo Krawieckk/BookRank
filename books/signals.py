@@ -27,7 +27,7 @@ def update_book_rating(sender, instance, **kwargs):
 @receiver(post_save, sender=Review)
 def increase_review_count(sender, instance, **kwargs):
     """
-    Increases review_count of the book by 1 after any new reviews
+    Increases review_count of the book by 1 after adding a review
     """
     book_id = instance.book_id
 
@@ -44,7 +44,7 @@ def increase_review_count(sender, instance, **kwargs):
 @receiver(post_delete, sender=Review)
 def decrease_review_count(sender, instance, **kwargs):
     """
-    Decreases review_count of the book by 1 after any deleted reviews
+    Decreases review_count of the book by 1 deleting reviews
     """
     book_id = instance.book_id
 
