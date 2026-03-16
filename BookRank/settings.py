@@ -26,6 +26,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_KEY')
+if not SECRET_KEY:
+    raise ValueError('DJANGO_KEY variable was not found')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
@@ -81,35 +83,45 @@ WSGI_APPLICATION = 'BookRank.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL:
-    DATABASES['default'] = dj_database_url.parse(DATABASE_URL, conn_max_age=0)
+if not DATABASE_URL:
+    raise ValueError('DATABASE_URL variable is not set')
+DATABASES = {
+    'default': dj_database_url.parse(DATABASE_URL, conn_max_age=0)
+}
 
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "eu-north-1")
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3.S3Storage",
-        "OPTIONS": {
-            "bucket_name": os.getenv("AWS_STORAGE_BUCKET_NAME"), 
-            "access_key": os.getenv("AWS_ACCESS_KEY_ID"), 
-            "secret_key": os.getenv("AWS_SECRET_ACCESS_KEY"), 
-            "region_name": AWS_S3_REGION_NAME
+S3_ENABLED = all([
+    AWS_STORAGE_BUCKET_NAME, 
+    AWS_S3_REGION_NAME, 
+    AWS_ACCESS_KEY_ID, 
+    AWS_SECRET_ACCESS_KEY
+])
+
+if S3_ENABLED:
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "bucket_name":AWS_STORAGE_BUCKET_NAME, 
+                "access_key": AWS_ACCESS_KEY_ID, 
+                "secret_key": AWS_SECRET_ACCESS_KEY, 
+                "region_name": AWS_S3_REGION_NAME
+            }
+        }, 
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         }
-    }, 
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
     }
-}
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Password validation
@@ -130,10 +142,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REDIS_CACHE_URL = os.getenv("REDIS_CACHE_URL", "redis://127.0.0.1:6379/1")
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_CACHE_URL"),
+        "LOCATION": REDIS_CACHE_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
@@ -147,7 +160,7 @@ CACHES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 
 USE_I18N = True
 
@@ -166,25 +179,42 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
-# MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
 # e-mails in terminal for testing
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
 
-CELERY_BROKER_URL = os.getenv("REDIS_CELERY_URL")
-CELERY_RESULT_BACKEND = os.getenv("REDIS_CELERY_URL")
+EMAIL_ENABLED = all([ 
+    EMAIL_HOST, 
+    EMAIL_HOST_USER, 
+    EMAIL_HOST_PASSWORD, 
+    EMAIL_PORT
+])
+
+if EMAIL_ENABLED:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+REDIS_CELERY_URL = os.getenv("REDIS_CELERY_URL", "redis://localhost:6379/0")
+
+CELERY_BROKER_URL = REDIS_CELERY_URL
+CELERY_RESULT_BACKEND = REDIS_CELERY_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Europe/Warsaw"
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+AI_API_CONFIGURED = bool(OPENAI_API_KEY)

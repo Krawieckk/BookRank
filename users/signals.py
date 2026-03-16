@@ -6,7 +6,6 @@ from django.conf import settings
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
-    # Create profile after registering
     if created:
         def create_profile():
             Profile.objects.create(user=instance)
@@ -15,7 +14,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(pre_save, sender=Profile)
 def delete_old_profile_picture_on_change(sender, instance: Profile, **kwargs):
-    # Delete old profile picture from storage after changing
     if not instance.pk:
         return 
 
@@ -42,6 +40,5 @@ def delete_old_profile_picture_on_change(sender, instance: Profile, **kwargs):
 
 @receiver(post_delete, sender=Profile)
 def delete_profile_picture_on_delete(sender, instance: Profile, **kwargs):
-    # Delete profile picture from storage after deleting the profile
     if instance.profile_picture:
         instance.profile_picture.delete(save=False)
