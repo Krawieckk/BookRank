@@ -128,32 +128,14 @@ class ProfilePictureChangeForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['profile_picture'].validators.append(
-            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
-        )
-
     def clean_profile_picture(self):
         file = self.cleaned_data.get("profile_picture")
 
         if not file:
             return file
-        
+
         if file.size > self.MAX_SIZE:
             raise ValidationError("File is too large (max 3MB).")
-
-        try:
-            img = Image.open(file)
-            img.verify()
-        except Exception:
-            raise ValidationError("Uploaded file is not a valid image.")
-
-        try:
-            file.seek(0)
-        except Exception:
-            pass
 
         return file
 
@@ -163,27 +145,27 @@ class ProfilePictureChangeForm(forms.ModelForm):
 
         if file:
             img = Image.open(file)
+            fmt = (img.format or "").upper()
 
             img = ImageOps.exif_transpose(img)
 
             width, height = img.size
             min_side = min(width, height)
 
-            left = (width - min_side) / 2
-            top = (height - min_side) / 2
-            right = (width + min_side) / 2
-            bottom = (height + min_side) / 2
+            left = (width - min_side) // 2
+            top = (height - min_side) // 2
+            right = left + min_side
+            bottom = top + min_side
 
             img = img.crop((left, top, right, bottom))
             img = img.resize((self.AVATAR_SIZE, self.AVATAR_SIZE), Image.LANCZOS)
 
-            fmt = (img.format or "").upper()
             if fmt == "JPG":
                 fmt = "JPEG"
             if fmt not in {"JPEG", "PNG"}:
                 fmt = "JPEG"
 
-            if fmt == "JPEG" and img.mode in ("RGBA", "LA"):
+            if fmt == "JPEG" and img.mode in ("RGBA", "LA", "P"):
                 img = img.convert("RGB")
 
             buffer = BytesIO()
@@ -198,14 +180,14 @@ class ProfilePictureChangeForm(forms.ModelForm):
             buffer.seek(0)
 
             ext_map = {"JPEG": ".jpg", "PNG": ".png"}
-            base = os.path.splitext(file.name)[0]
+            content_type_map = {"JPEG": "image/jpeg", "PNG": "image/png"}
             new_name = f"avatar_{uuid4().hex}{ext_map[fmt]}"
 
             resized_file = InMemoryUploadedFile(
                 file=buffer,
                 field_name="profile_picture",
                 name=new_name,
-                content_type=file.content_type,
+                content_type=content_type_map[fmt],
                 size=buffer.getbuffer().nbytes,
                 charset=None
             )

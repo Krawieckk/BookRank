@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import FileExtensionValidator
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -16,7 +17,8 @@ class Profile(models.Model):
     profile_picture = models.ImageField(
         upload_to='avatars/', 
         blank=True, 
-        default='avatars/profile-picture.png'
+        default='avatars/profile-picture.png', 
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])]
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
