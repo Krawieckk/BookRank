@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.core.validators import FileExtensionValidator
+from django.templatetags.static import static
 
 # Create your models here.
 class Author(models.Model):
@@ -38,7 +40,8 @@ class Book(models.Model):
     cover_image = models.ImageField(
         upload_to='covers/', 
         blank=True,
-        default='default_book.png'
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])]
+        # default='default_book.png'
     )
     info_link = models.CharField(max_length=400, blank=True, null=True)
     summary_generated = models.BooleanField(default=False, db_index=True)
@@ -56,6 +59,12 @@ class Book(models.Model):
                                   null=True, 
                                   on_delete=models.SET_NULL, 
                                   db_index=True)
+    
+    @property
+    def book_cover_url(self):
+        if self.cover_image:
+            return self.cover_image.url
+        return static('img/default_book.png')
 
     def __str__(self):
         return self.title

@@ -9,11 +9,9 @@
     <article class="flex gap-5 ">
       
         <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden border border-slate-200 bg-slate-50 ">
-        {% if book.cover_image %}
-          <img src="{{ book.cover_image.url }}" 
+          <img src="{{ book.book_cover_url }}" 
                alt="cover image of: {{ book.title|truncatewords:10 }}..."
                class="h-full w-full object-fit loading">
-        {% endif %}
       </div>
       
 

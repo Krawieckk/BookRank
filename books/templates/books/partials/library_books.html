@@ -5,7 +5,7 @@
             <div class="flex flex-row gap-4 flex-1 min-w-0">
                 <a href="{% url 'book_page' entry.book.id %}">
                     <div class="w-20 h-28 sm:w-32 sm:h-44 flex-shrink-0 overflow-hidden shadow-sm">
-                        <img src="{{ entry.book.cover_image.url }}" alt="{{ entry.book.title }} Cover" class="w-full h-full object-fit">
+                        <img src="{{ entry.book.book_cover_url }}" alt="{{ entry.book.title }} Cover" class="w-full h-full object-fit">
                     </div>
                 </a>
 

@@ -6,11 +6,9 @@
     <article class="flex flex-col sm:flex-row gap-5 border-b-1 border-slate-300 pb-5">
       <a href="{% url 'book_page' entry.book.id %}" class="block w-full flex gap-5 hover:bg-[#f3f4f6] sm:mr-12 transition-colors">
         <div class="w-20 h-30 md:h-40 md:w-28 shrink-0 overflow-hidden border border-slate-200 bg-[#f3f4f6] ">
-        {% if entry.book.cover_image %}
-          <img src="{{ entry.book.cover_image.url }}" 
+          <img src="{{ entry.book.book_cover_url }}" 
                alt="cover image of: {{ entry.book.title|truncatewords:10 }}..."
                class="h-full w-full object-fit loading">
-        {% endif %}
       </div>
       
 
