@@ -18,17 +18,8 @@ def parse_rating(value):
     if value is None:
         return None
 
-    text = str(value).strip()
-    if not text or text.lower() == "nan":
-        return None
-
-    try:
-        rating = int(float(text))
-    except ValueError:
-        return None
-
-    if 1 <= rating <= 5:
-        return rating
+    if 1 <= int(value) <= 5:
+        return int(value)
 
     return None
 

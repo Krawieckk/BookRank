@@ -443,7 +443,7 @@ def explore(request):
         qs = qs.filter(summary_generated=True)
 
     qs = qs.order_by(SORT_MAP.get(sort, "-average_rating"))
-
+    
     paginator = Paginator(qs, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
 

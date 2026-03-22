@@ -1,16 +1,13 @@
 import ast
 import csv
-import re
 from pathlib import Path
 from collections import defaultdict
+from datetime import datetime
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction, connection
 
 from books.models import Book, Author, Tag, Publisher
-
-
-YEAR_RE = re.compile(r"(\d{4})")
 
 
 def parse_list(value):
@@ -35,17 +32,8 @@ def parse_year(value):
     if not value:
         return None
 
-    text = str(value).strip()
-    if not text or text.lower() == "nan":
-        return None
-
-    match = YEAR_RE.search(text)
-    if not match:
-        return None
-
-    year = int(match.group(1))
-    if 0 < year < 3000:
-        return year
+    if 1000 < int(value) < datetime.now().year + 1:
+        return value
     return None
 
 
