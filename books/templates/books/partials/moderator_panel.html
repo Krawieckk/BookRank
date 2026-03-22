@@ -1,4 +1,5 @@
 {% if moderator_logged %}
+{% if api_configured %}
 <div class="w-full flex flex-col border-1 border-[#2e4052] mb-6 text-black">
   <div class="w-full bg-[#2e4052] text-white font-semibold text-center lg:text-left text-sm px-3">
     <h3 class="py-2">Moderator panel</h3>
@@ -67,4 +68,7 @@
   </div>
   {% endif %}
 </div>
+{% else %}
+  <p class="text-sm lg:text-base">In order to use the Moderator panel, configure AI API variables in .env</p>
+{% endif %}
 {% endif %}

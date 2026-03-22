@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime
 from django.core.cache import cache
+from django.conf import settings
 
 
 def _popular_authors():
@@ -131,6 +132,13 @@ def book_page(request, pk):
     # Top 5 most helpful reviews
     reviews_qs = reviews_qs[:5]
 
+    # Checking if AI API is configured
+    if getattr(settings, "AI_API_CONFIGURED", False):
+        api_configured = True
+    else:
+        api_configured = False
+
+
     context = {
         "book": book,
         "reviews": reviews_qs,
@@ -139,7 +147,8 @@ def book_page(request, pk):
         "added_to_library": added_to_library, 
         "moderator_logged": moderator, 
         "review_summary": review_summary, 
-        "summary_is_generating": summary_is_generating
+        "summary_is_generating": summary_is_generating, 
+        "api_configured": api_configured
     }
     return render(request, "books/book_page.html", context)
 
